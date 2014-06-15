@@ -3,9 +3,9 @@ using System.Windows.Forms;
 
 namespace Last.fm
 {
-    public partial class frmSetUsername : Form
+    public partial class FrmSetUsername : Form
     {
-        public frmSetUsername()
+        public FrmSetUsername()
         {
             InitializeComponent();
         }

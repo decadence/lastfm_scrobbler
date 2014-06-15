@@ -1,6 +1,6 @@
 ﻿namespace Last.fm
 {
-    partial class frmSetUsername
+    partial class FrmSetUsername
     {
         /// <summary>
         /// Required designer variable.

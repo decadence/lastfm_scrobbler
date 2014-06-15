@@ -34,12 +34,21 @@ namespace Last.fm
         public bool Compare(int s1, int s2)
         {
             if ((s1 / 10) == (s2 / 10))
+			{
                 return ((s1 % 10) > (s2 % 10));
+			}
             else if (s1 < 10)
+			{
                 return ((s1 % 10) >= (s2 / 10));
+			}
             else if (s2 < 10)
+			{
                 return ((s1 / 10) > (s2 % 10));// в этом случае равно не нужно, ибо передвигать не нужно будет;
-            else return false;
+			}
+            else 
+			{
+				return false;
+			}
         }
 
         public int[] NeedArray(int n) // изменить сортировку
@@ -310,16 +319,17 @@ namespace Last.fm
                 // если метод не завершить принудительно, всё, что после catch - сработает
             }
 
+            if (mLog.Checked)
+            {
+                SaveLog(true);
+            }
+
             if (mClear.Checked) // отчищаем, если задано
             {
                 lbList.Items.Clear();
                 lblSongCount.Text = lbList.Items.Count.ToString();
             }
 
-            if (mLog.Checked)
-            {
-                SaveLog(true);
-            }
             MessageBox.Show("Треки отправлены!");
         }
 
@@ -407,7 +417,7 @@ namespace Last.fm
                 DialogResult f = MessageBox.Show("Для выполнения этой операции вам нужно ввести имя вашей учётной записи. Сделать это сейчас?", "Ошибка", MessageBoxButtons.YesNo);
                 if (f == DialogResult.Yes)
                 {
-                    frmSetUsername tmp = new frmSetUsername();
+                    FrmSetUsername tmp = new FrmSetUsername();
                     if (DialogResult.OK == tmp.ShowDialog())
                     {
                         username = Program.username;
@@ -579,59 +589,52 @@ namespace Last.fm
 
         public void GiveAccess()
         {
-            XmlDocument xmlP = new XmlDocument();
-
-            HttpWebRequest tokenRequest = (HttpWebRequest)WebRequest.Create("http://ws.audioscrobbler.com/2.0/?method=auth.gettoken&api_key=" + ApiKey); // получение токена
-            HttpWebResponse tokenResponse = (HttpWebResponse)tokenRequest.GetResponse();
-            string tokenResult = new StreamReader(tokenResponse.GetResponseStream(),
-                                           Encoding.UTF8).ReadToEnd();
-
-
-            xmlP.LoadXml(tokenResult);
-            string token = xmlP.SelectSingleNode("lfm/token").InnerText;
-            /*
-            // извлечение токена
-            string token = String.Empty;
-            for (int i = tokenResult.IndexOf("<token>") + 7; i < tokenResult.IndexOf("</token"); i++)
+            try
             {
-                token += tokenResult[i];
-            }
-            //token = token.Remove(0, 7); // удаляем первый тег.
-            */
-            // запрос на юзание, изменить на хранимую сессию
-            Process s = Process.Start("http://www.last.fm/api/auth/?api_key=" + ApiKey + "&token=" + token);
+                XmlDocument xmlP = new XmlDocument();
 
-            // делаем сигнатуру
-            DialogResult d = MessageBox.Show("Вы подтвердили доступ?", "Подтверждение", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
-            if (d == DialogResult.OK)
-            {
-                string tmp = "api_key" + ApiKey + "methodauth.getsessiontoken" + token + mySecret; // сигнатура для получения сессии! (для каждого апиметода она разная)
-                string sig = MD5(tmp); // хеширование 
-
-
-                // получение сессии
-                HttpWebRequest sessionRequest = (HttpWebRequest)WebRequest.Create("http://ws.audioscrobbler.com/2.0/?method=auth.getsession&token=" + token + "&api_key=" + ApiKey + "&api_sig=" + sig);
-                sessionRequest.AllowAutoRedirect = true;
-                HttpWebResponse sessionResponse = (HttpWebResponse)sessionRequest.GetResponse();
-                string sessionResult = new StreamReader(sessionResponse.GetResponseStream(),
+                HttpWebRequest tokenRequest = (HttpWebRequest)WebRequest.Create("http://ws.audioscrobbler.com/2.0/?method=auth.gettoken&api_key=" + ApiKey); // получение токена
+                HttpWebResponse tokenResponse = (HttpWebResponse)tokenRequest.GetResponse();
+                string tokenResult = new StreamReader(tokenResponse.GetResponseStream(),
                                                Encoding.UTF8).ReadToEnd();
-                /*
-                // извлечение сессии
-                for (int i = sessionResult.IndexOf("<key>") + 5; i < sessionResult.IndexOf("</key>"); i++)
+
+                // извлечение токена
+                xmlP.LoadXml(tokenResult);
+                string token = xmlP.SelectSingleNode("lfm/token").InnerText;
+
+                // запрос на юзание, изменить на хранимую сессию
+                Process s = Process.Start("http://www.last.fm/api/auth/?api_key=" + ApiKey + "&token=" + token);
+
+                // делаем сигнатуру
+                DialogResult d = MessageBox.Show("Вы подтвердили доступ?", "Подтверждение", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                if (d == DialogResult.OK)
                 {
-                    sessK += sessionResult[i];
+                    string tmp = "api_key" + ApiKey + "methodauth.getsessiontoken" + token + mySecret; // сигнатура для получения сессии! (для каждого апиметода она разная)
+                    string sig = MD5(tmp); // хеширование 
+
+
+                    // получение сессии
+                    HttpWebRequest sessionRequest = (HttpWebRequest)WebRequest.Create("http://ws.audioscrobbler.com/2.0/?method=auth.getsession&token=" + token + "&api_key=" + ApiKey + "&api_sig=" + sig);
+                    sessionRequest.AllowAutoRedirect = true;
+                    HttpWebResponse sessionResponse = (HttpWebResponse)sessionRequest.GetResponse();
+                    string sessionResult = new StreamReader(sessionResponse.GetResponseStream(),
+                                                   Encoding.UTF8).ReadToEnd();
+                    // извлечение сессии
+                    xmlP.LoadXml(sessionResult);
+                    sessionKey = xmlP.SelectSingleNode("lfm/session/key").InnerText;
+                    UpdateAccessIcon();
+
                 }
-                sessionKey = sessK;
-                */
-                xmlP.LoadXml(sessionResult);
-                sessionKey = xmlP.SelectSingleNode("lfm/session/key").InnerText;
-                // Settings.Default.sessionKey = "fsddf";
-                UpdateAccessIcon();
+                else
+                {
+                    throw new Exception("Вы должны предоставить доступ приложению!");
+                }
             }
-            else
+            catch (Exception e1)
             {
-                throw new Exception("Вы должны предоставить доступ приложению!");
+                throw e1; // бросаем исключение "выше".
             }
+            
 
         }
 
@@ -809,7 +812,7 @@ namespace Last.fm
 
         private void mSetUserName_Click(object sender, EventArgs e)
         {
-            frmSetUsername tmp = new frmSetUsername();
+            FrmSetUsername tmp = new FrmSetUsername();
             if (DialogResult.OK == tmp.ShowDialog())
             {
                 username = Program.username;
@@ -893,16 +896,19 @@ namespace Last.fm
 
             if (e.KeyCode == Keys.E)
             {
-                int f = lbList.SelectedIndex; // получаем выбранный индекс 
-                Song tmp = (Song)lbList.SelectedItem;
-                tbArtist.Text = tmp.Artist;
-                tbTrack.Text = tmp.Track;
-                tbAlbum.Text = tmp.Album;
-                lbList.Items.RemoveAt(lbList.SelectedIndex);
-                UpdateCountLabel();
+                if (lbList.SelectedIndex > -1)
+                {
+                    int f = lbList.SelectedIndex; // получаем выбранный индекс 
+                    Song tmp = (Song)lbList.SelectedItem;
+                    tbArtist.Text = tmp.Artist;
+                    tbTrack.Text = tmp.Track;
+                    tbAlbum.Text = tmp.Album;
+                    lbList.Items.RemoveAt(lbList.SelectedIndex);
+                    UpdateCountLabel();
 
-                if (f - 1 > -1) // если у нас не последний
-                    lbList.SetSelected(f - 1, true); // выбираем предыдущий элемент
+                    if (f - 1 > -1) // если у нас не последний
+                        lbList.SetSelected(f - 1, true); // выбираем предыдущий элемент
+                }
             }
         }
 
@@ -950,11 +956,10 @@ namespace Last.fm
                 AddOneLine(tbOneLine.Text);
             }
         }
-
- 
     }
 }
 
+// TODO: Добавить пункт в меню "Возможные проблемы". Перечислить браузер по умолчанию, .NET Framework и др.
 
 #region Мясо
 /*
@@ -1180,62 +1185,7 @@ void ScrobbleOneTrack(string login, string password, string artist, string track
 
 
 
+
+
+
 #endregion
-
-// добавить в референс System.Web, для работы с HttpUtility
-// как впихнуть пустую строку? (видимо, String.Empty всё-таки работает. Тогда она принимает вид &s=&r=4... Пробелы между недопустимы (только между словами в значении параметра))
-
-// при добавлении новых песен он берёт альбом, продолжительности и т.д. с твоего запроса, то есть при скробблинге уже существующих можно не париться (главное, исполнитель и название трека). Числовые поля лучше всё-таки заполнять хоть чем-то, ибо сервер может не воспринять песню. Но лучше 1 раз песню добавлять с правильной продолжительностью из другого места
-// так что лучше отсюда добавлять только те песни, которые уже есть в библиотеке, чтобы не создавать кривые второстепенные данные (альбом, продолжительность и т.д. :))
-
-//вычитание даты:
-/*
-TimeSpan t1 = new TimeSpan(3, 0, 0);
-w -= t1; // вычитаем три часа, чтобы не было несоответствия из-за разницы в часовых поясах
-*/
-
-
-//lbList.Items.Add(new Song { Artist = artist, Track = track });  - так можно заполнить только поля!
-
-// Uri Encode for &
-// приостановка работы программы с помощью диалог резалта и месаджбокса
-// рабочая строчка!
-// string submissionReq = "s=" + sessID + "&a[0]=" + artist + "&a[1]=Disturbed&t[0]=" + track + "&t[1]=Session&i[0]=" + timestamp + "&i[1]=" + (timestamp+300) + "&o[0]=P&o[1]=P&r[0]=L&r[1]=L&l[0]=300&l[1]=300&b[0]=" + String.Empty + "&b[1]=" + String.Empty + "&n[0]=1&n[1]=1&m[0]=" + String.Empty + "&m[1]=" + String.Empty;
-// при мулитьотправке треков параметры должны идти не a[0]...m[0]&a[1], a a[0]&a[1]...m[0]&m[1]. Желательно вставлять разное время прослушивания. Кодировать необязательно, вместо пустых значений ставим String.Empty.
-
-/*
-string ziga = MD5("api_key"+ApiKey+"artist[0]prodigymethodtrack.scrobblesk"+sessK+"timestamp[0]"+timestamp+"track[0]smack"+mySecret);
-                string sf = "method=track.scrobble&sk=" + sessK + "&api_key=" + ApiKey + "&artist[0]=prodigy&track[0]=smack&timestamp[0]=" + timestamp + "&api_sig=" + ziga;
-                string temp3 = "method=track.scrobble&track[0]=Rocket&artist[0]=Defueppard&timestamp[0]=" + (timestamp - 300).ToString() + "&track[1]=Women&artist[1]=DefLeppard&timestamp[1]=" + timestamp.ToString() + "&api_key=" + ApiKey + "&api_sig=" + ziga + "&sk=" + sessK;
- рабочие строки для нового АПИ
- 
- * api_keyea13f7fe78f7ef62bbbc5c43dcd6dfcbartist[0]Example Artistmethodtrack.scrobbleskf448e2ecfb287a466162b24efdf588ectimestamp[0]1298908503track[0]Example Trackaeaa72cd88242eb7f1437ed8b9937e16"
- 
- method=track.scrobble&sk=f448e2ecfb287a466162b24efdf588ec&api_key=ea13f7fe78f7ef62bbbc5c43dcd6dfcb&artist[0]=Example Artist&timestamp[0]=1298908803&track[0]=Example Track&api_sig=141694047efdb18d29916b6bc4bf0b39
- 
- */
-
-// сигнатура делается отдельно для каждого(!) апи-метода и в ней параметры располагаются имязначение в альфа-порядке
-
-// не совпадение сигнатуры и отправки из-за ёбаного таймстампа!
-
-// написать про мессаджбокс, блокирование им и диалог резалт от него.
-
-/*
- int[] t = { 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 1, 20, 2, 3, 4, 5, 6, 7, 8, 9}; // правильный порядок при мультиотправке
-*/
-
-/*
-tbArtist.DataSource = null;
-tbArtist.DataSource = AutoFill;
-tbArtist.PerformLayout(); комбобокс только так обновляет свой датасорс сразу!
- 
-
-// продолжительность от первого скроббла только в своей библиотеке, а при клике выдаётся нормальная песня со всей инфой
-// неизвестная продолжительность? (оставить пустой) - не пашет
-
-// русские треки не скробблились из-за того, что в строке:
- byte[] EncodedPostParams = Encoding.UTF8.GetBytes(submissionReq); была ASCII кодировка
- 
- Нельзя в имени трека и исполнителя писать &. Это нарушает структуру get запроса. Видимо, нужно писать код этого символа (урл кодирование поможет).
- */
