@@ -11,6 +11,7 @@ using System.Threading;
 using System.Web;
 using System.Windows.Forms;
 using System.Xml;
+using Last.fm.Properties;
 using Settings;
 
 namespace Last.fm
@@ -28,10 +29,6 @@ namespace Last.fm
         string username = String.Empty;
 
         string[] allowedExtension = { ".mp3", ".wav", ".flac", ".ogg" };
-
-        // информация о программе
-        string info = @"Автономный Last.fm скробблер, версия 1.3.2.0 (3 мая 2012 года) © 2011, Исадов Виктор. Все права защищены." + Environment.NewLine + "Открыть страницу программы?";
-
 
         #region Вспомогательные методы
         public bool Compare(int s1, int s2)
@@ -122,7 +119,7 @@ namespace Last.fm
 
 
             string sessK = GetSessionKey();
-            Application.DoEvents();
+            //
             if (String.IsNullOrEmpty(sessK))
             {
                 DialogResult f = MessageBox.Show("Вы должны предоставить приложению доступ к своему профилю. Сделать это сейчас?", "Ошибка", MessageBoxButtons.YesNo);
@@ -132,7 +129,7 @@ namespace Last.fm
                 }
                 else return;
             }
-            Application.DoEvents();
+            //
             sessK = GetSessionKey();
 
             // установка сеанса работы с сервером
@@ -151,7 +148,7 @@ namespace Last.fm
             string submissionReqString = String.Empty;
 
             // отдельное формирование сигнатуры и параметров
-            Application.DoEvents();
+            //
             //параметры:
             submissionReqString += "method=track.scrobble&sk=" + sessK + "&api_key=" + ApiKey;
 
@@ -168,7 +165,7 @@ namespace Last.fm
                 //timestamp -= 300;
             }
 
-            Application.DoEvents();
+            //
             // сигнатура:
             string signature = String.Empty;
 
@@ -179,7 +176,7 @@ namespace Last.fm
             }
 
             signature += "api_key" + ApiKey;
-            Application.DoEvents();
+            //
             // для сигнатуры нельзя делать Url кодирование, это сбивает запрос на 403 ошибку!
             // !!!все параметры нужно в альфа бета порядке делать!!!!. Здесь он выдавал не в той последовательности, время и параметры не совпадали.
             for (int i = 0; i < cnt; i++)
@@ -198,10 +195,10 @@ namespace Last.fm
                 signature += "track[" + N[i].ToString() + "]" + T[N[i]].Track;
             }
 
-            Application.DoEvents();
+            //
             signature += mySecret; // добавляем секрет в конец
             submissionReqString += "&api_sig=" + MD5(signature); // добавляем сигнатуру к общему запросу
-            Application.DoEvents();
+            //
             HttpWebRequest submissionRequest = (HttpWebRequest)WebRequest.Create("http://ws.audioscrobbler.com/2.0/"); // адрес запроса (без параметров)
             submissionRequest.ServicePoint.Expect100Continue = false; // важная строка! из-за её отсутствия сервер ласта рвал соединение
 
@@ -210,28 +207,26 @@ namespace Last.fm
             submissionRequest.Method = "POST"; // Указываем метод отправки данных скрипту, в случае с Post обязательно
             submissionRequest.ContentType = "application/x-www-form-urlencoded"; // основная строчка из-за которой не работало! (точнее, из-за того, что она была закомменчена). В случае с Post обязательна, видимо из-за её отсутствия неправильно кодировались данные
             submissionRequest.Timeout = 6000; // 
-            Application.DoEvents();
+            //
             // Преобразуем данные к соответствующую кодировку
             byte[] EncodedPostParams = Encoding.UTF8.GetBytes(submissionReqString); // получение массива байтов из строки с параметрами (UTF8 обязательно)
             submissionRequest.ContentLength = EncodedPostParams.Length;
-            Application.DoEvents();
+            //
             // Записываем данные в поток
             submissionRequest.GetRequestStream().Write(EncodedPostParams, 0,
                                             EncodedPostParams.Length); // запись в поток запроса (массив байтов, хз, сколько запиливаем)
-            Application.DoEvents();
-   
-            Application.DoEvents();
+            //
+
+            //
             HttpWebResponse submissionResponse = (HttpWebResponse)submissionRequest.GetResponse(); // получаем ответ
-            Application.DoEvents();
+            //
             // Получаем html-код страницы
             string submissionResult = new StreamReader(submissionResponse.GetResponseStream(),
                                            Encoding.UTF8).ReadToEnd(); // считываем поток ответа
-            Application.DoEvents();
+            //
             // разбор полётов
             if (!submissionResult.Contains("status=\"ok\"")) // проверяет, содержит ли строка эту подстроку, с учётом регистра
                 throw new Exception("Треки не отправлены! Причина - " + submissionResult);
-
-
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
@@ -257,7 +252,7 @@ namespace Last.fm
                 tbTrack.Text = q2;
             }
             UpdateCountLabel();
-            
+
 
         }
 
@@ -268,7 +263,7 @@ namespace Last.fm
                 MessageBox.Show("Не добавлено ни одного трека!");
                 return;
             }
-            Application.DoEvents();
+            //
 
             try
             {
@@ -285,7 +280,7 @@ namespace Last.fm
 
                 // проверка даты!
 
-                Application.DoEvents();
+                //
                 int iterations = 1;
                 if (tmp.Count > 50) // расчитываем количество итераций
                 {
@@ -296,12 +291,12 @@ namespace Last.fm
 
                 for (int i = 0; i < iterations; i++)
                 {
-                    Application.DoEvents();
+                    //
                     ScrobbleTracks(GetButch(50 * i, 50, tmp), start); // отправляем по 50 треков
-                    Application.DoEvents();
+                    //
                     if ((i + 1) != iterations)
                         Thread.Sleep(1500); // ставим ожидание, чтобы дать серверу время на обработку
-                    Application.DoEvents();
+                    //
                 }
             }
             catch (Exception e1)
@@ -368,7 +363,7 @@ namespace Last.fm
 
         public bool AddOneLine(string s)
         {
-            string[] separ = {" - "};
+            string[] separ = { " - " };
             string[] result = s.Split(separ, StringSplitOptions.None);
             if (result.Length == 2)
             {
@@ -453,6 +448,7 @@ namespace Last.fm
                 if (File.Exists(defFile))
                 {
                     LoadConfig();
+                    UpdateAccessIcon();
                 }
             }
             catch (Exception e1)
@@ -461,6 +457,20 @@ namespace Last.fm
                 return;
             }
 
+        }
+
+        void UpdateAccessIcon()
+        {
+            if (String.IsNullOrEmpty(GetSessionKey()))
+            {
+                pbAccess.Image = Resources.no;
+                ttMain.SetToolTip(pbAccess, "Программе не дан доступ к профилю");
+            }
+            else
+            {
+                pbAccess.Image = Resources.ok;
+                ttMain.SetToolTip(pbAccess, "Программе дан доступ к профилю");
+            }
         }
 
         void SaveConfig()
@@ -494,6 +504,7 @@ namespace Last.fm
             try
             {
                 ClearConfig();
+                UpdateAccessIcon();
             }
             catch (Exception e1)
             {
@@ -615,6 +626,7 @@ namespace Last.fm
                 xmlP.LoadXml(sessionResult);
                 sessionKey = xmlP.SelectSingleNode("lfm/session/key").InnerText;
                 // Settings.Default.sessionKey = "fsddf";
+                UpdateAccessIcon();
             }
             else
             {
@@ -662,8 +674,8 @@ namespace Last.fm
 
         private void mAbout_Click(object sender, EventArgs e)
         {
-            
-            if (DialogResult.OK == MessageBox.Show(info, "О программе", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
+
+            if (DialogResult.OK == MessageBox.Show(Resources.Info, "О программе", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
             {
                 Process.Start("http://vk.com/note4223988_10790267");
             }
@@ -747,34 +759,32 @@ namespace Last.fm
             dtStart.Enabled = chStartTime.Checked;
         }
 
-        private void mAddDirectory_Click(object sender, EventArgs e)
-        {
-            FolderBrowserDialog fd = new FolderBrowserDialog();
-            fd.RootFolder = Environment.SpecialFolder.Desktop;
-            if (DialogResult.OK == fd.ShowDialog())
-            {
-                AddFolder(fd.SelectedPath);
-            }
-
-        }
-
         public void AddFolder(string path)
         {
             if (Directory.Exists(path))
             {
                 DirectoryInfo dI = new DirectoryInfo(path);
-                FileInfo [] fI = dI.GetFiles();
+                FileInfo[] fI = dI.GetFiles();
 
                 for (int i = 0; i < fI.Length; i++)
                 {
-                    if (CheckExtension(fI[i].Extension)) // проверяем расширение
-                    {
-                        AddOneLine(Path.GetFileNameWithoutExtension(fI[i].FullName)); // добавляем без расширения
-                    }
+                    AddFile(fI[i]);
                 }
                 lblSongCount.Text = lbList.Items.Count.ToString();
             }
-            else MessageBox.Show("Директория не существует");
+            else throw new Exception ("Директория не существует");
+        }
+
+        public void AddFile(FileInfo path)
+        {
+            if (path.Exists)
+            {
+                if (CheckExtension(path.Extension)) // проверяем расширение
+                {
+                    AddOneLine(Path.GetFileNameWithoutExtension(path.FullName)); // добавляем без расширения
+                }
+            }
+            else throw new Exception("Файл не существует");
         }
 
         public bool CheckExtension(string ext)
@@ -836,6 +846,112 @@ namespace Last.fm
         {
             tbAlbum.SelectAll();
         }
+
+        private void lbList_DragEnter(object sender, DragEventArgs e)
+        {
+            // Проверяем, подходят ли нам перетаскиваемые файлы
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                e.Effect = DragDropEffects.Copy; // Устанавливаем у курсора значок копирования
+            else
+                e.Effect = DragDropEffects.None; // Устанавливаем у курсора значок запрета
+
+        }
+
+        private void lbList_DragDrop(object sender, DragEventArgs e)
+        {
+            string[] FileList = (string[])e.Data.GetData(DataFormats.FileDrop, false);
+
+            for (int i = 0; i < FileList.Length; i++)
+            {
+                if (File.Exists(FileList[i])) // если это файл
+                {
+                    AddFile(new FileInfo(FileList[i]));
+                }
+                else if (Directory.Exists(FileList[i]))
+                {
+                    AddFolder(FileList[i]);
+                }
+            }
+            lblSongCount.Text = lbList.Items.Count.ToString();
+
+
+        }
+
+        private void lbList_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+            {
+                if (lbList.SelectedIndex > -1)
+                {
+                    int f = lbList.SelectedIndex; // получаем выбранный индекс 
+                    lbList.Items.RemoveAt(f); // удаляем
+                    if (f - 1 > -1) // если у нас не последний
+                        lbList.SetSelected(f - 1, true); // выбираем предыдущий элемент
+                    UpdateCountLabel();
+                }
+            }
+
+            if (e.KeyCode == Keys.E)
+            {
+                int f = lbList.SelectedIndex; // получаем выбранный индекс 
+                Song tmp = (Song)lbList.SelectedItem;
+                tbArtist.Text = tmp.Artist;
+                tbTrack.Text = tmp.Track;
+                tbAlbum.Text = tmp.Album;
+                lbList.Items.RemoveAt(lbList.SelectedIndex);
+                UpdateCountLabel();
+
+                if (f - 1 > -1) // если у нас не последний
+                    lbList.SetSelected(f - 1, true); // выбираем предыдущий элемент
+            }
+        }
+
+        private void mSelectFolder_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog fd = new FolderBrowserDialog();
+            fd.RootFolder = Environment.SpecialFolder.Desktop;
+            if (DialogResult.OK == fd.ShowDialog())
+            {
+                AddFolder(fd.SelectedPath);
+            }
+        }
+
+        private void mEnterPath_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tbAddPath_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                if (Directory.Exists(tbAddPath.Text))
+                {
+                    AddFolder(tbAddPath.Text);
+                    // скрываем меню программно
+                    for (int i = 0; i < mainMenu.Items.Count; i++)
+                    {
+                       ((ToolStripDropDownItem)mainMenu.Items[i]).HideDropDown();
+                    }
+                    tbAddPath.Text = String.Empty; // отчищаем текстовое поле
+                }
+            }
+        }
+
+        private void mVersionList_Click(object sender, EventArgs e)
+        {
+            Process.Start(Resources.MainLink);
+        }
+
+        private void tbOneLine_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                AddOneLine(tbOneLine.Text);
+            }
+        }
+
+ 
     }
 }
 
@@ -1108,7 +1224,6 @@ string ziga = MD5("api_key"+ApiKey+"artist[0]prodigymethodtrack.scrobblesk"+sess
 /*
  int[] t = { 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 1, 20, 2, 3, 4, 5, 6, 7, 8, 9}; // правильный порядок при мультиотправке
 */
-//e.Cancel = true;
 
 /*
 tbArtist.DataSource = null;

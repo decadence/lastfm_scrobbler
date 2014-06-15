@@ -12,12 +12,14 @@
     <AssemblyName>Автономный Last.fm скробблер</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ApplicationIcon>pictures\Last.fm.ico</ApplicationIcon>
+    <ApplicationIcon>Last.fm.ico</ApplicationIcon>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <ManifestCertificateThumbprint>C3736AC5707A49C3BB2242C496E3C86AAF5082E6</ManifestCertificateThumbprint>
     <ManifestKeyFile>Last.fm_TemporaryKey.pfx</ManifestKeyFile>
     <GenerateManifests>true</GenerateManifests>
     <SignManifests>false</SignManifests>
+    <TargetFrameworkSubset>
+    </TargetFrameworkSubset>
     <PublishUrl>C:\Users\Витяй\Desktop\32\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -34,8 +36,7 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkSubset>
-    </TargetFrameworkSubset>
+    <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -119,13 +120,16 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="Song.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Last.fm.ico" />
     <Content Include="pictures\icon_eq.gif" />
     <Content Include="pictures\Last.fm.ico" />
-    <Content Include="pictures\loved.jpg" />
+    <Content Include="pictures\no.png" />
+    <Content Include="pictures\ok.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -164,9 +168,6 @@
       <Project>{52FB1B9F-A479-4988-A79C-DF43A1D7269F}</Project>
       <Name>Settings</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

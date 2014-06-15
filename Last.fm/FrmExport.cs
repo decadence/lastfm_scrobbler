@@ -1,20 +1,11 @@
 ﻿using System;
-using System.ComponentModel;
-using Last.fm.Properties;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.Net;
-using System.IO;
-using System.Security.Cryptography;
-using System.Web;
 using System.Collections.Generic;
-using System.Threading;
 using System.Diagnostics;
-using System.Runtime.Serialization.Formatters.Binary;
-using Settings;
+using System.IO;
+using System.Net;
+using System.Text;
+using System.Threading;
+using System.Windows.Forms;
 using System.Xml;
 
 namespace Last.fm

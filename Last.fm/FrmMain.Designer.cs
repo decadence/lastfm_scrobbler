@@ -57,7 +57,8 @@
             this.mOpenLog = new System.Windows.Forms.ToolStripMenuItem();
             this.mAdd = new System.Windows.Forms.ToolStripMenuItem();
             this.mMassiveAdd = new System.Windows.Forms.ToolStripMenuItem();
-            this.mAddDirectory = new System.Windows.Forms.ToolStripMenuItem();
+            this.mSelectFolder = new System.Windows.Forms.ToolStripMenuItem();
+            this.tbAddPath = new System.Windows.Forms.ToolStripTextBox();
             this.mProfile = new System.Windows.Forms.ToolStripMenuItem();
             this.mGetTracks = new System.Windows.Forms.ToolStripMenuItem();
             this.mSeparator = new System.Windows.Forms.ToolStripSeparator();
@@ -80,26 +81,33 @@
             this.mDeleteData = new System.Windows.Forms.ToolStripMenuItem();
             this.mHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.mAbout = new System.Windows.Forms.ToolStripMenuItem();
+            this.mVersionList = new System.Windows.Forms.ToolStripMenuItem();
             this.dtStart = new System.Windows.Forms.DateTimePicker();
             this.chStartTime = new System.Windows.Forms.CheckBox();
             this.cbTimeType = new System.Windows.Forms.ComboBox();
             this.ttMain = new System.Windows.Forms.ToolTip(this.components);
+            this.pbAccess = new System.Windows.Forms.PictureBox();
             this.cMSList.SuspendLayout();
             this.gbTools.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pBEqualiser)).BeginInit();
             this.mainMenu.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbAccess)).BeginInit();
             this.SuspendLayout();
             // 
             // lbList
             // 
+            this.lbList.AllowDrop = true;
             this.lbList.ContextMenuStrip = this.cMSList;
             this.lbList.FormattingEnabled = true;
             this.lbList.HorizontalScrollbar = true;
-            this.lbList.Location = new System.Drawing.Point(175, 29);
+            this.lbList.Location = new System.Drawing.Point(175, 28);
             this.lbList.Name = "lbList";
             this.lbList.Size = new System.Drawing.Size(183, 199);
             this.lbList.TabIndex = 11;
             this.ttMain.SetToolTip(this.lbList, "ПКМ для вызова контекстного меню");
+            this.lbList.DragDrop += new System.Windows.Forms.DragEventHandler(this.lbList_DragDrop);
+            this.lbList.DragEnter += new System.Windows.Forms.DragEventHandler(this.lbList_DragEnter);
+            this.lbList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lbList_KeyDown);
             // 
             // cMSList
             // 
@@ -240,6 +248,7 @@
             this.tbOneLine.TabIndex = 5;
             this.tbOneLine.Text = "Example Artist - Example Track - Example Album";
             this.ttMain.SetToolTip(this.tbOneLine, "Добавление в одну строку");
+            this.tbOneLine.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbOneLine_KeyDown);
             // 
             // lblTrack
             // 
@@ -280,7 +289,7 @@
             // lblSongCount
             // 
             this.lblSongCount.AutoSize = true;
-            this.lblSongCount.Location = new System.Drawing.Point(127, 213);
+            this.lblSongCount.Location = new System.Drawing.Point(131, 209);
             this.lblSongCount.Name = "lblSongCount";
             this.lblSongCount.Size = new System.Drawing.Size(13, 13);
             this.lblSongCount.TabIndex = 10;
@@ -288,8 +297,8 @@
             // 
             // pBEqualiser
             // 
-            this.pBEqualiser.Image = ((System.Drawing.Image)(resources.GetObject("pBEqualiser.Image")));
-            this.pBEqualiser.Location = new System.Drawing.Point(154, 215);
+            this.pBEqualiser.Image = global::Last.fm.Properties.Resources.icon_eq;
+            this.pBEqualiser.Location = new System.Drawing.Point(157, 210);
             this.pBEqualiser.Name = "pBEqualiser";
             this.pBEqualiser.Size = new System.Drawing.Size(12, 12);
             this.pBEqualiser.TabIndex = 16;
@@ -332,7 +341,8 @@
             // 
             this.mAdd.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mMassiveAdd,
-            this.mAddDirectory});
+            this.mSelectFolder,
+            this.tbAddPath});
             this.mAdd.Name = "mAdd";
             this.mAdd.Size = new System.Drawing.Size(365, 22);
             this.mAdd.Text = "Добавление";
@@ -344,12 +354,20 @@
             this.mMassiveAdd.Text = "Массовое строковое добавление";
             this.mMassiveAdd.Click += new System.EventHandler(this.mMassiveAdd_Click);
             // 
-            // mAddDirectory
+            // mSelectFolder
             // 
-            this.mAddDirectory.Name = "mAddDirectory";
-            this.mAddDirectory.Size = new System.Drawing.Size(310, 22);
-            this.mAddDirectory.Text = "Добавление списка файлов из директории";
-            this.mAddDirectory.Click += new System.EventHandler(this.mAddDirectory_Click);
+            this.mSelectFolder.Name = "mSelectFolder";
+            this.mSelectFolder.Size = new System.Drawing.Size(310, 22);
+            this.mSelectFolder.Text = "Выбор папки";
+            this.mSelectFolder.Click += new System.EventHandler(this.mSelectFolder_Click);
+            // 
+            // tbAddPath
+            // 
+            this.tbAddPath.BackColor = System.Drawing.Color.LemonChiffon;
+            this.tbAddPath.Name = "tbAddPath";
+            this.tbAddPath.Size = new System.Drawing.Size(250, 23);
+            this.tbAddPath.Text = "Введите путь до папки и нажмите Enter";
+            this.tbAddPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbAddPath_KeyDown);
             // 
             // mProfile
             // 
@@ -507,7 +525,8 @@
             // mHelp
             // 
             this.mHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mAbout});
+            this.mAbout,
+            this.mVersionList});
             this.mHelp.Name = "mHelp";
             this.mHelp.Size = new System.Drawing.Size(65, 20);
             this.mHelp.Text = "Справка";
@@ -518,6 +537,13 @@
             this.mAbout.Size = new System.Drawing.Size(404, 22);
             this.mAbout.Text = "О программе/Обновление/Помощь/Сообщить об ошибке";
             this.mAbout.Click += new System.EventHandler(this.mAbout_Click);
+            // 
+            // mVersionList
+            // 
+            this.mVersionList.Name = "mVersionList";
+            this.mVersionList.Size = new System.Drawing.Size(404, 22);
+            this.mVersionList.Text = "Список версий";
+            this.mVersionList.Click += new System.EventHandler(this.mVersionList_Click);
             // 
             // dtStart
             // 
@@ -552,6 +578,17 @@
             this.cbTimeType.TabIndex = 8;
             this.cbTimeType.SelectedIndexChanged += new System.EventHandler(this.cbTimeType_SelectedIndexChanged);
             // 
+            // pbAccess
+            // 
+            this.pbAccess.Image = global::Last.fm.Properties.Resources.no;
+            this.pbAccess.Location = new System.Drawing.Point(43, 207);
+            this.pbAccess.Name = "pbAccess";
+            this.pbAccess.Size = new System.Drawing.Size(16, 16);
+            this.pbAccess.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pbAccess.TabIndex = 21;
+            this.pbAccess.TabStop = false;
+            this.ttMain.SetToolTip(this.pbAccess, "Приложению не дан доступ к профилю");
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -561,12 +598,13 @@
             this.Controls.Add(this.cbTimeType);
             this.Controls.Add(this.dtStart);
             this.Controls.Add(this.mainMenu);
+            this.Controls.Add(this.pbAccess);
             this.Controls.Add(this.lblList);
             this.Controls.Add(this.btnSend);
             this.Controls.Add(this.lbList);
-            this.Controls.Add(this.pBEqualiser);
             this.Controls.Add(this.gbTools);
             this.Controls.Add(this.lblSongCount);
+            this.Controls.Add(this.pBEqualiser);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.mainMenu;
@@ -581,6 +619,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pBEqualiser)).EndInit();
             this.mainMenu.ResumeLayout(false);
             this.mainMenu.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbAccess)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -630,7 +669,6 @@
         private System.Windows.Forms.TextBox tbAlbum;
         private System.Windows.Forms.Label lblAlbum;
         private System.Windows.Forms.ToolStripMenuItem mMassiveAdd;
-        private System.Windows.Forms.ToolStripMenuItem mAddDirectory;
         private System.Windows.Forms.ToolStripMenuItem mHelp;
         private System.Windows.Forms.ToolStripMenuItem mClearArtists;
         private System.Windows.Forms.ToolStripMenuItem mAbout;
@@ -642,6 +680,10 @@
         private System.Windows.Forms.ToolTip ttMain;
         private System.Windows.Forms.ToolStripMenuItem mEdit;
         private System.Windows.Forms.ToolStripMenuItem mExitConfirm;
+        private System.Windows.Forms.ToolStripMenuItem mSelectFolder;
+        private System.Windows.Forms.ToolStripTextBox tbAddPath;
+        private System.Windows.Forms.PictureBox pbAccess;
+        private System.Windows.Forms.ToolStripMenuItem mVersionList;
     }
 }
 
