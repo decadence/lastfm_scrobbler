@@ -29,10 +29,7 @@ namespace Last.fm
     public partial class FrmExport : Form
     {
         int procent;
-       // string sessionKey = "empty";
-       // string defFile = "settings.alr";
         string ApiKey = "ea13f7fe78f7ef62bbbc5c43dcd6dfcb";
-       // string mySecret = "aeaa72cd88242eb7f1437ed8b9937e16";
         string Path { get; set; }
 
         public int TotalPages(string login, string artist, bool filterByArtist)
@@ -57,13 +54,11 @@ namespace Last.fm
 
                 if (!tracksResult.Contains("status=\"ok\"")) // проверяет, содержит ли строка эту подстроку, с учётом регистра
                     throw new Exception("Трек не добавлен в любимые! Причина - " + tracksResult);
-                // MessageBox.Show(tracksResult);
 
                 XmlDocument doc = new XmlDocument();
                 doc.LoadXml(tracksResult);
 
-                // string s = "";
-                //string tmp1 = "";
+
                 return Convert.ToInt32(doc.SelectNodes("lfm/tracks")[0].Attributes["totalPages"].Value); // получение атрибута у узла
             }
             catch (Exception e1)
@@ -178,17 +173,11 @@ namespace Last.fm
                     {
                         for (int q = 0; q < g.PlayCount; q++)
                         {
-                           // if (q % 50 == 0)
-                           // {
                                 s += g.Artist + " - " + g.Track + "\r\n";
-                           // }
                         }
                     }
                     test.Clear(); // чистим список, чтобы по 2 раза не забивать песни
 
-                
-                //s += 
-                //MessageBox.Show(s);
               
                 }
                 procent = (i + 1) * (100 / pages);
@@ -203,18 +192,14 @@ namespace Last.fm
             {
                 Process.Start(path);
             }
-
-
-
-            //return s;
-
         }
+
         public FrmExport(string user)
         {
-       
             InitializeComponent();
             cbMode.SelectedIndex = 0;
-            tbName.Text = user;
+            if (!String.IsNullOrEmpty(user))
+                tbName.Text = user;
         }
 
         private void chBFilterByArtist_CheckedChanged(object sender, EventArgs e)
@@ -230,9 +215,7 @@ namespace Last.fm
         private void btnChoosePath_Click(object sender, EventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();
-
             sfd.Filter = "Текстовые файлы|*txt";
-            //opd.InitialDirectory = SystemInformation
             if (sfd.ShowDialog() == DialogResult.OK)
             {
                 Path = sfd.FileName;
@@ -300,3 +283,5 @@ namespace Last.fm
         }
     }
 }
+
+// если при запросе треков не в

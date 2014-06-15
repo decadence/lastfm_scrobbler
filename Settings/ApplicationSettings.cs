@@ -9,8 +9,6 @@ namespace Settings
     public class ApplicationSettings
     {
         public string Username { get; set; }
-        public string Password { get; set; }
-        public int Mode { get; set; }
         public bool Log { get; set; }
         public bool Clear { get; set; }
         public bool WithAlbum { set; get; }
@@ -18,30 +16,22 @@ namespace Settings
         public List<String> AutoFill { set; get; }
         public bool AutoSave { set; get; }
         public bool AutoClear { set; get; }
-
-        /*public int Mode
-        {
-            set
-            {
-                value
-            }
-        }*/
+        public bool ExitConfirm { set; get; }
 
         public string SessionKey { get; set; }
 
 
 
-        public ApplicationSettings(string u, string p, string s, int mode, bool log, bool clear, bool saveA, bool autoS, bool autoC)
+        public ApplicationSettings(string u, string s, bool log, bool clear, bool saveA, bool autoS, bool autoC, bool exitConfirm)
         {
             Username = u;
-            Password = p;
             SaveArtists = saveA;
             SessionKey = s;
-            Mode = mode;
             Log = log;
             AutoSave = autoS;
             AutoClear = autoC;
             Clear = clear;
+            ExitConfirm = exitConfirm;
             AutoFill = new List<string>();
 
         }

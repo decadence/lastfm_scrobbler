@@ -77,7 +77,6 @@
             this.tbFilterByArtist.Name = "tbFilterByArtist";
             this.tbFilterByArtist.Size = new System.Drawing.Size(100, 20);
             this.tbFilterByArtist.TabIndex = 2;
-            this.mainToolTip.SetToolTip(this.tbFilterByArtist, "Имя исполнителя, песни которого нужно учитывать при включённом фильтре");
             // 
             // chBFilterByPages
             // 
@@ -121,7 +120,6 @@
             this.tbName.Size = new System.Drawing.Size(100, 20);
             this.tbName.TabIndex = 5;
             this.tbName.Text = "Ваш логин";
-            this.mainToolTip.SetToolTip(this.tbName, "Ваш логин");
             // 
             // btnGo
             // 

@@ -17,7 +17,7 @@
     <ManifestCertificateThumbprint>C3736AC5707A49C3BB2242C496E3C86AAF5082E6</ManifestCertificateThumbprint>
     <ManifestKeyFile>Last.fm_TemporaryKey.pfx</ManifestKeyFile>
     <GenerateManifests>true</GenerateManifests>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
     <PublishUrl>C:\Users\Витяй\Desktop\32\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -34,6 +34,8 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkSubset>
+    </TargetFrameworkSubset>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -89,6 +91,12 @@
     <Compile Include="FrmMain.Designer.cs">
       <DependentUpon>FrmMain.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmSetUsername.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmSetUsername.Designer.cs">
+      <DependentUpon>frmSetUsername.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="FrmBigList.resx">
@@ -99,6 +107,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FrmMain.resx">
       <DependentUpon>FrmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmSetUsername.resx">
+      <DependentUpon>frmSetUsername.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -112,7 +123,6 @@
     <Compile Include="Song.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="pictures\loader.gif" />
     <Content Include="pictures\icon_eq.gif" />
     <Content Include="pictures\Last.fm.ico" />
     <Content Include="pictures\loved.jpg" />
@@ -154,6 +164,9 @@
       <Project>{52FB1B9F-A479-4988-A79C-DF43A1D7269F}</Project>
       <Name>Settings</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

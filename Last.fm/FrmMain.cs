@@ -10,13 +10,8 @@ using System.Text;
 using System.Threading;
 using System.Web;
 using System.Windows.Forms;
+using System.Xml;
 using Settings;
-
-
-// нет понятия глобального юзинга, то есть
-//using System.Collections.Generic;
-//using System.Collections;
-// не дают одинакового эффекта, нижний юзинг не покрывает верхний
 
 namespace Last.fm
 {
@@ -30,6 +25,12 @@ namespace Last.fm
         string defFile = "settings.alr";
         string ApiKey = "ea13f7fe78f7ef62bbbc5c43dcd6dfcb";
         string mySecret = "aeaa72cd88242eb7f1437ed8b9937e16";
+        string username = String.Empty;
+
+        string[] allowedExtension = { ".mp3", ".wav", ".flac", ".ogg" };
+
+        // информация о программе
+        string info = @"Автономный Last.fm скробблер, версия 1.3.2.0 (3 мая 2012 года) © 2011, Исадов Виктор. Все права защищены." + Environment.NewLine + "Открыть страницу программы?";
 
 
         #region Вспомогательные методы
@@ -70,9 +71,6 @@ namespace Last.fm
             return tmp;
         }
 
-
-        
-
         string MD5(string s) // MD5
         {
             //переводим строку в байт-массим   
@@ -99,16 +97,14 @@ namespace Last.fm
         {
             InitializeComponent();
             bf = new BinaryFormatter();
+
             /*
-            if (ardgs.Length > 0)
-            {
-               // string s = "";
-               // foreach (string r in ardgs)
-               //     s+=" " + r;
-               // MessageBox.Show(s);
-               tbLogin.Text = ardgs[0];
-                tbPassword.Text = ardgs[1];
-            }*/
+            Binding g = new Binding("Text", lbList.Items, "Count");
+            lblSongCount.DataBindings.Add(g);
+            */
+
+            cbTimeType.SelectedIndex = 0;
+
         }
 
         string GetSessionKey()
@@ -118,302 +114,125 @@ namespace Last.fm
             else return sessionKey;
         }
 
-        void ScrobbleTracks(List<Song> T)
+        void ScrobbleTracks(List<Song> T, DateTime start)
         {
-            /*
-            string[] m = new string[T.Count]; // создаём с запасом
-            for (int i = 0; i < m.Length; i++)
+            // делаем массив для правильной альфа-бета сортировки параметров
+            int cnt = T.Count;
+            int[] N = NeedArray(cnt); // получение отсортированного массивы для правильной сигнатуры
+
+
+            string sessK = GetSessionKey();
+            Application.DoEvents();
+            if (String.IsNullOrEmpty(sessK))
             {
-                m[i] = i.ToString();
+                DialogResult f = MessageBox.Show("Вы должны предоставить приложению доступ к своему профилю. Сделать это сейчас?", "Ошибка", MessageBoxButtons.YesNo);
+                if (f == DialogResult.Yes)
+                {
+                    mGiveAccess_Click(null, EventArgs.Empty);
+                }
+                else return;
             }
-            //m.OrderBy(x => x.ToString());
-            Array.Sort(m);
-            */
+            Application.DoEvents();
+            sessK = GetSessionKey();
 
-                // делаем массив для правильной альфа-бета сортировки параметров
-                int cnt = T.Count;
-                int[] N = NeedArray(cnt); // получение отсортированного массивы для правильной сигнатуры
-
-            
-                string sessK = GetSessionKey();
-
-                if (String.IsNullOrEmpty(sessK))
-                {
-                    DialogResult f = MessageBox.Show("Вы должны предоставить приложению доступ к своему профилю. Сделать это сейчас?", "Ошибка", MessageBoxButtons.YesNo);
-                    if (f == DialogResult.Yes)
-                    {
-                        mGiveAccess_Click(null, EventArgs.Empty);
-                    }
-                    else
-                    {
-                        throw new Exception("Вы должны предоставить приложению доступ к своему профилю! Или выберите другой режим отправки треков.");
-                    }
-                        
-                }
-
-                sessK = GetSessionKey();
-
-                // установка сеанса работы с сервером
-                TimeSpan rtime = DateTime.Now - (new DateTime(1970, 1, 1, 0, 0, 0));
-                TimeSpan t1 = new TimeSpan(3, 0, 0);
-                rtime -= t1; // вычитаем три часа, чтобы не было несоответствия из-за разницы в часовых поясах
-                int timestamp = (int)rtime.TotalSeconds; // общее количество секунд
-
-                int [] times = new int[50];
-                for (int i = 0; i < times.Length; i++)
-                {
-                    times[i] = timestamp - i * 300;
-                }
-
-                // формирование строки запроса
-                string submissionReqString = String.Empty;
-                
-                // отдельное формирование сигнатуры и параметров
-
-                //параметры:
-                submissionReqString += "method=track.scrobble&sk=" + sessK + "&api_key=" + ApiKey;
-                
-            /*
-            for (int i = 0; i < cnt; i++)
-                {
-                    submissionReqString += "&artist[" + i + "]=" + HttpUtility.UrlEncode(T[i].Artist);
-                }
-
-                for (int i = 0; i < cnt; i++)
-                {
-                    submissionReqString += "&track[" + i + "]=" + HttpUtility.UrlEncode(T[i].Track);
-                }
-                
-                for (int i = 0; i < cnt; i++)
-                {
-                    submissionReqString += "&timestamp[" + i + "]=" + timestamp.ToString();
-                    timestamp -= 300;
-                }
-            */
-
-                /*
-
-                int[] t = { 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 1, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 2 };
-                for (int i = 0; i < T.Count; i++)
-                {
-                    submissionReq += "&artist[" + i + "]=" + T[i].Artist;
-
-                    submissionReq += "&track[" + i + "]=" + T[i].Track;
-                    submissionReq += "&timestamp[" + i + "]=" + timestamp.ToString();
-                    //timestamp -= 300;
-                }*/
-
-                for (int i = 0; i < cnt;  i++)
-                {
-                    // кодирование, чтобы спецсимволы правильно воспринимались
-                    submissionReqString += "&artist[" + i + "]=" + HttpUtility.UrlEncode(T[i].Artist);
-                    submissionReqString += "&track[" + i + "]=" + HttpUtility.UrlEncode(T[i].Track);
-                    submissionReqString += "&timestamp[" + i + "]=" + times[i].ToString();
-                    //if (String.IsNullOrEmpty(T[i].Album))
-                   // submissionReqString += "&album[" + i + "]=" + HttpUtility.UrlEncode(String.Empty);
-                    //else 
-                        submissionReqString += "&album[" + i + "]=" + HttpUtility.UrlEncode(T[i].Album);
-                    //timestamp -= 300;
-                }
-
-
-                // сигнатура:
-                string signature = String.Empty;
-
-
-                for (int i = 0; i < cnt; i++)
-                {
-                    signature += "album[" + N[i].ToString() + "]" + T[N[i]].Album;
-                }
-
-                signature += "api_key" + ApiKey;
-                
-                // для сигнатуры нельзя делать Url кодирование, это сбивает запрос на 403 ошибку!
-                // !!!все параметры нужно в альфа бета порядке делать!!!!. Здесь он выдавал не в той последовательности, время и параметры не совпадали.
-                for (int i = 0; i < cnt; i++)
-                {
-                    signature += "artist[" + N[i].ToString() + "]" + T[N[i]].Artist; // соответствие кэфов
-                }
-                signature += "methodtrack.scrobblesk" + sessK;
-
-                for (int i = 0; i < cnt; i++)
-                {
-                    signature += "timestamp[" + N[i].ToString() + "]" + times[N[i]].ToString();
-                }
-
-                for (int i = 0; i < cnt; i++)
-                {
-                    signature += "track[" + N[i].ToString() + "]" + T[N[i]].Track;
-                }
-
-
-                signature += mySecret; // добавляем секрет в конец
-                submissionReqString += "&api_sig=" + MD5(signature); // добавляем сигнатуру к общему запросу
-
-                HttpWebRequest submissionRequest = (HttpWebRequest)WebRequest.Create("http://ws.audioscrobbler.com/2.0/"); // адрес запроса (без параметров)
-                submissionRequest.ServicePoint.Expect100Continue = false; // важная строка! из-за её отсутствия сервер ласта рвал соединение
-                
-                // Настраиваем параметры запроса
-                submissionRequest.UserAgent = "Mozilla/5.0";
-                submissionRequest.Method = "POST"; // Указываем метод отправки данных скрипту, в случае с Post обязательно
-                submissionRequest.ContentType = "application/x-www-form-urlencoded"; // основная строчка из-за которой не работало! (точнее, из-за того, что она была закомменчена). В случае с Post обязательна, видимо из-за её отсутствия неправильно кодировались данные
-                submissionRequest.Timeout = 6000; // 
-
-                // Преобразуем данные к соответствующую кодировку
-                byte[] EncodedPostParams = Encoding.UTF8.GetBytes(submissionReqString); // получение массива байтов из строки с параметрами (UTF8 обязательно)
-                submissionRequest.ContentLength = EncodedPostParams.Length;
-
-                // Записываем данные в поток
-                submissionRequest.GetRequestStream().Write(EncodedPostParams, 0,
-                                                EncodedPostParams.Length); // запись в поток запроса (массив байтов, хз, сколько запиливаем)
-
-                submissionRequest.GetRequestStream().Close();
-
-                
-                
-                HttpWebResponse submissionResponse = (HttpWebResponse)submissionRequest.GetResponse(); // получаем ответ
-
-                // Получаем html-код страницы
-                string submissionResult = new StreamReader(submissionResponse.GetResponseStream(),
-                                               Encoding.UTF8).ReadToEnd(); // считываем поток ответа
-
-                // разбор полётов
-                if (!submissionResult.Contains("status=\"ok\"")) // проверяет, содержит ли строка эту подстроку, с учётом регистра
-                    throw new Exception("Треки не отправлены! Причина - " + submissionResult);
-            
- 
-        }
-
-        void ScrobbleTracks (string login, string password, List<Song> T)
-        {
             // установка сеанса работы с сервером
-            TimeSpan rtime = DateTime.Now - (new DateTime(1970, 1, 1, 0, 0, 0));
+            TimeSpan rtime = start - (new DateTime(1970, 1, 1, 0, 0, 0));
             TimeSpan t1 = new TimeSpan(3, 0, 0);
             rtime -= t1; // вычитаем три часа, чтобы не было несоответствия из-за разницы в часовых поясах
             int timestamp = (int)rtime.TotalSeconds; // общее количество секунд
-            string client_id = "tst"; // для тестовых клиентов используется этот идентификатор
-            string client_ver = "1.0"; // и такая версия
-            string auth = MD5(MD5(password) + timestamp);//токен авторизации, который равен md5(md5(пароль) + timestamp)
-            string handshakeReq = "http://post.audioscrobbler.com/?hs=true&p=1.2.1&c=" + client_id + "&v= " + client_ver + "&u=" + login + "&t=" + timestamp + "&a=" + auth;// + pre); // создаём с адресом в параметрах.
 
-            HttpWebRequest handshakerequest = (HttpWebRequest)WebRequest.Create(handshakeReq);
-            handshakerequest.UserAgent = "Mozilla/5.0"; // 
-            handshakerequest.Timeout = 10000; // установка таймаута для методов получения входного потока и потока ответа. Вылетит ошибка по истечении этого времени, а не зависнет программа. Нужно при недоступности узла или отсутствии подключения.
-            handshakerequest.AllowAutoRedirect = true; // допустимо ли перенаправление
-            HttpWebResponse handshakeResponse = (HttpWebResponse)handshakerequest.GetResponse(); // получение ответа от сервераа
-            string handshakeResult = new StreamReader(handshakeResponse.GetResponseStream(),
-                                           Encoding.UTF8).ReadToEnd(); // чтение потока (поток ответа, кодировка).чтение потока до конца.
-            ///////////////////////////////////
-
-            // Формируем строку с параметрами
-            // выбираем вторую строку с айди сессии
-            string sessID = String.Empty;
-            int d = 0;
-            for (int i = 0; i < handshakeResult.Length; i++)
+            int[] times = new int[50];
+            for (int i = 0; i < times.Length; i++)
             {
-                if (handshakeResult[i] == '\n')
-                {
-                    d++;
-                    continue;
-                }
-                if (d > 1) break;
-                if (d == 1) sessID += handshakeResult[i];
+                times[i] = timestamp - i * 300;
             }
-
-            //string submissionReq = "s=" + HttpUtility.UrlEncode(sessID) + "&a[0]=" + HttpUtility.UrlEncode(artist) + "&t[0]=" + HttpUtility.UrlEncode(track) + "&i[0]=" + HttpUtility.UrlEncode(timestamp.ToString()) + "&o[0]=P&r[0]=L&l[0]=300&b[0]=" + String.Empty + "&n[0]=1&m[0]=" + String.Empty;
-           // string submissoonReq2 = "s="+ HttpUtility.UrlEncode(sessID)+"&a[1]=" + HttpUtility.UrlEncode("Disturbed") + "&t[1]=" + HttpUtility.UrlEncode("Session") + "&i[1]=" + HttpUtility.UrlEncode(timestamp.ToString()) + "&o[1]=P&r[1]=L&l[1]=300&b[1]=" + String.Empty + "&n[1]=1&m[1]=" + String.Empty;
-            //string submissionReq = "s=" + HttpUtility.UrlEncode(sessID) + "&a[0]=" + HttpUtility.UrlEncode(artist) + "&t[0]=" + HttpUtility.UrlEncode(track) + "&i[0]=" + HttpUtility.UrlEncode(timestamp.ToString()) + "&o[0]=P&r[0]=L&l[0]=300&b[0]=" + String.Empty + "&n[0]=1&m[0]=1" + String.Empty + "&a[1]=" + HttpUtility.UrlEncode("Disturbed") + "&t[1]=" + HttpUtility.UrlEncode("Session") + "&i[1]=" + HttpUtility.UrlEncode(timestamp.ToString()) + "&o[1]=P&r[1]=L&l[1]=300&b[1]=" + String.Empty + "&n[1]=1&m[1]=" + String.Empty;
-            
 
             // формирование строки запроса
-            string submissionReq = "s=" + sessID;
-            for (int i = 0; i < T.Count; i++)
-            {
-                submissionReq += "&a[" + i + "]=" + HttpUtility.UrlEncode(T[i].Artist);
-            }
-            for (int i = 0; i < T.Count; i++)
-            {
-                submissionReq += "&t[" + i + "]=" + HttpUtility.UrlEncode(T[i].Track);
-            }
-            for (int i = 0; i < T.Count; i++)
-            {
-                submissionReq += "&i[" + i + "]=" + timestamp;
-                timestamp -= 300;
-            }
-            for (int i = 0; i < T.Count; i++)
-            {
-                submissionReq += "&o[" + i + "]=P";
-            }
-            for (int i = 0; i < T.Count; i++)
-            {
-                submissionReq += "&r[" + i + "]=L";
-            }
-            for (int i = 0; i < T.Count; i++)
-            {
-                submissionReq += "&l[" + i + "]=300";
-            }
-            for (int i = 0; i < T.Count; i++)
-            {
-                //if (String.IsNullOrEmpty(T[i].Album)) 
-               // submissionReq += "&b[" + i + "]=" + String.Empty;
-                //else 
-                submissionReq += "&b[" + i + "]=" + HttpUtility.UrlEncode(T[i].Album);
-            }
-            for (int i = 0; i < T.Count; i++)
-            {
-                submissionReq += "&n[" + i + "]=1";
-            }
-            for (int i = 0; i < T.Count; i++)
-            {
-                submissionReq += "&m[" + i + "]=" + String.Empty;
-            }
-            
-            
-            
-            
-            
-           // string submissionReq = "s=" + sessID + "&a[0]=" + artist + "&a[1]=Disturbed&t[0]=" + track + "&t[1]=Session&i[0]=" + timestamp + "&i[1]=" + (timestamp+300) + "&o[0]=P&o[1]=P&r[0]=L&r[1]=L&l[0]=300&l[1]=300&b[0]=" + String.Empty + "&b[1]=" + String.Empty + "&n[0]=1&n[1]=1&m[0]=" + String.Empty + "&m[1]=" + String.Empty;
+            string submissionReqString = String.Empty;
 
-            HttpWebRequest submissionRequest = (HttpWebRequest)WebRequest.Create("http://post2.audioscrobbler.com:80/protocol_1.2"); // адрес запроса (без параметров)
-           // HttpWebRequest submissionRequest2 = (HttpWebRequest)WebRequest.Create("http://post2.audioscrobbler.com:80/protocol_1.2"); // адрес запроса (без параметров)
+            // отдельное формирование сигнатуры и параметров
+            Application.DoEvents();
+            //параметры:
+            submissionReqString += "method=track.scrobble&sk=" + sessK + "&api_key=" + ApiKey;
+
+            for (int i = 0; i < cnt; i++)
+            {
+                // кодирование, чтобы спецсимволы правильно воспринимались
+                submissionReqString += "&artist[" + i + "]=" + HttpUtility.UrlEncode(T[i].Artist);
+                submissionReqString += "&track[" + i + "]=" + HttpUtility.UrlEncode(T[i].Track);
+                submissionReqString += "&timestamp[" + i + "]=" + times[i].ToString();
+                //if (String.IsNullOrEmpty(T[i].Album))
+                // submissionReqString += "&album[" + i + "]=" + HttpUtility.UrlEncode(String.Empty);
+                //else 
+                submissionReqString += "&album[" + i + "]=" + HttpUtility.UrlEncode(T[i].Album);
+                //timestamp -= 300;
+            }
+
+            Application.DoEvents();
+            // сигнатура:
+            string signature = String.Empty;
+
+
+            for (int i = 0; i < cnt; i++)
+            {
+                signature += "album[" + N[i].ToString() + "]" + T[N[i]].Album;
+            }
+
+            signature += "api_key" + ApiKey;
+            Application.DoEvents();
+            // для сигнатуры нельзя делать Url кодирование, это сбивает запрос на 403 ошибку!
+            // !!!все параметры нужно в альфа бета порядке делать!!!!. Здесь он выдавал не в той последовательности, время и параметры не совпадали.
+            for (int i = 0; i < cnt; i++)
+            {
+                signature += "artist[" + N[i].ToString() + "]" + T[N[i]].Artist; // соответствие кэфов
+            }
+            signature += "methodtrack.scrobblesk" + sessK;
+
+            for (int i = 0; i < cnt; i++)
+            {
+                signature += "timestamp[" + N[i].ToString() + "]" + times[N[i]].ToString();
+            }
+
+            for (int i = 0; i < cnt; i++)
+            {
+                signature += "track[" + N[i].ToString() + "]" + T[N[i]].Track;
+            }
+
+            Application.DoEvents();
+            signature += mySecret; // добавляем секрет в конец
+            submissionReqString += "&api_sig=" + MD5(signature); // добавляем сигнатуру к общему запросу
+            Application.DoEvents();
+            HttpWebRequest submissionRequest = (HttpWebRequest)WebRequest.Create("http://ws.audioscrobbler.com/2.0/"); // адрес запроса (без параметров)
+            submissionRequest.ServicePoint.Expect100Continue = false; // важная строка! из-за её отсутствия сервер ласта рвал соединение
 
             // Настраиваем параметры запроса
             submissionRequest.UserAgent = "Mozilla/5.0";
             submissionRequest.Method = "POST"; // Указываем метод отправки данных скрипту, в случае с Post обязательно
-
-
-            submissionRequest.AllowAutoRedirect = true;
-            
-            // request.Referer = mainSiteUrl;
-            // request.CookieContainer = cookieCont;
-
-            // Указываем тип отправляемых данных
             submissionRequest.ContentType = "application/x-www-form-urlencoded"; // основная строчка из-за которой не работало! (точнее, из-за того, что она была закомменчена). В случае с Post обязательна, видимо из-за её отсутствия неправильно кодировались данные
-
-            // Преобразуем данные к соответствующую кодировку. 
-            // Обязательно кодирование в UTF8! Иначе могут возникнуть проблемы с русскими названиями треков!
-            byte[] EncodedPostParams = Encoding.UTF8.GetBytes(submissionReq); // получение массива байтов из строки с параметрами. 
+            submissionRequest.Timeout = 6000; // 
+            Application.DoEvents();
+            // Преобразуем данные к соответствующую кодировку
+            byte[] EncodedPostParams = Encoding.UTF8.GetBytes(submissionReqString); // получение массива байтов из строки с параметрами (UTF8 обязательно)
             submissionRequest.ContentLength = EncodedPostParams.Length;
-
+            Application.DoEvents();
             // Записываем данные в поток
-            submissionRequest.GetRequestStream().Write(EncodedPostParams,
-                                             0,
-                                             EncodedPostParams.Length); // запись в поток запроса (массив байтов, хз, сколько запиливаем)
-
-            submissionRequest.GetRequestStream().Close();
-
-            // Получаем ответ
+            submissionRequest.GetRequestStream().Write(EncodedPostParams, 0,
+                                            EncodedPostParams.Length); // запись в поток запроса (массив байтов, хз, сколько запиливаем)
+            Application.DoEvents();
+   
+            Application.DoEvents();
             HttpWebResponse submissionResponse = (HttpWebResponse)submissionRequest.GetResponse(); // получаем ответ
-
+            Application.DoEvents();
             // Получаем html-код страницы
             string submissionResult = new StreamReader(submissionResponse.GetResponseStream(),
                                            Encoding.UTF8).ReadToEnd(); // считываем поток ответа
-
-            //MessageBox.Show(submissionResult);
-            if (!submissionResult.Contains("OK")) // проверяет, содержит ли строка эту подстроку, с учётом регистра
+            Application.DoEvents();
+            // разбор полётов
+            if (!submissionResult.Contains("status=\"ok\"")) // проверяет, содержит ли строка эту подстроку, с учётом регистра
                 throw new Exception("Треки не отправлены! Причина - " + submissionResult);
-        }
 
+
+        }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
@@ -425,7 +244,7 @@ namespace Last.fm
             }
             string q1 = tbArtist.Text;
             string q2 = tbTrack.Text;
-            Song tmp = new Song{ Artist = tbArtist.Text, Track = tbTrack.Text, Album = tbAlbum.Text};
+            Song tmp = new Song { Artist = tbArtist.Text, Track = tbTrack.Text, Album = tbAlbum.Text };
             lbList.Items.Add(tmp);
             if (mSaveArtists.Checked)
             {
@@ -437,38 +256,38 @@ namespace Last.fm
                 tbArtist.Text = q1;
                 tbTrack.Text = q2;
             }
-                lblSongCount.Text = lbList.Items.Count.ToString();
-                
+            UpdateCountLabel();
+            
+
         }
 
         private void btnSend_Click(object sender, EventArgs e)
         {
-            pbGo.Visible = true;
-
             if (lbList.Items.Count == 0)
             {
                 MessageBox.Show("Не добавлено ни одного трека!");
                 return;
             }
-
-            /*
-            if (lbList.Items.Count > 50)
-            {
-                MessageBox.Show("Треков должно быть не более 50!");
-                return;
-            }
-            */
+            Application.DoEvents();
 
             try
             {
                 List<Song> tmp = new List<Song>();
                 foreach (var T in lbList.Items)
                 {
-                    tmp.Add((Song)T);
+                    tmp.Add((Song)T); // сливаем все песни в наш список
                 }
 
+                DateTime start = DateTime.Now;
+
+                if (chStartTime.Checked)
+                    start = dtStart.Value;
+
+                // проверка даты!
+
+                Application.DoEvents();
                 int iterations = 1;
-                if (tmp.Count > 50)
+                if (tmp.Count > 50) // расчитываем количество итераций
                 {
                     if (tmp.Count % 50 > 0)
                         iterations = tmp.Count / 50 + 1;
@@ -477,23 +296,26 @@ namespace Last.fm
 
                 for (int i = 0; i < iterations; i++)
                 {
-                    ScrobbleTracks(GetButch(50 * i, 50, tmp));
-                    if ((i+1) != iterations)
-                    Thread.Sleep(1500); // ставим ожидание, чтобы дать серверу время на обработку
+                    Application.DoEvents();
+                    ScrobbleTracks(GetButch(50 * i, 50, tmp), start); // отправляем по 50 треков
+                    Application.DoEvents();
+                    if ((i + 1) != iterations)
+                        Thread.Sleep(1500); // ставим ожидание, чтобы дать серверу время на обработку
+                    Application.DoEvents();
                 }
             }
-                catch (Exception e1)
+            catch (Exception e1)
+            {
+                MessageBox.Show(e1.Message, String.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (mLog.Checked)
                 {
-                    MessageBox.Show(e1.Message, String.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    if (mLog.Checked)
-                    {
-                        SaveLog(false);
-                    }
-                    return;
-                    // если метод не завершить принудительно, всё, что после catch - сработает
+                    SaveLog(false);
                 }
+                return;
+                // если метод не завершить принудительно, всё, что после catch - сработает
+            }
 
-            if (mClear.Checked)
+            if (mClear.Checked) // отчищаем, если задано
             {
                 lbList.Items.Clear();
                 lblSongCount.Text = lbList.Items.Count.ToString();
@@ -503,32 +325,28 @@ namespace Last.fm
             {
                 SaveLog(true);
             }
-
             MessageBox.Show("Треки отправлены!");
         }
 
         void LoadConfig()
         {
-                FileStream f = new FileStream(defFile, FileMode.Open);
-                ApplicationSettings tmp = (ApplicationSettings)bf.Deserialize(f);
-                AutoFill = tmp.AutoFill; // переброс ссылки, темп будет уничтожен, но ссылка на этот лист будет жить
-                tbPassword.Text = tmp.Password;
-                tbLogin.Text = tmp.Username;
-                sessionKey = tmp.SessionKey;
-                mLog.Checked = tmp.Log;
-                mClear.Checked = tmp.Clear;
-                mLoginMode.Checked = (tmp.Mode == 0) ? true : false;
-                mAccessMode.Checked = !mLoginMode.Checked;
-                tbArtist.DataSource = AutoFill;
-                mSaveArtists.Checked = tmp.SaveArtists;
-                mAutoClear.Checked = tmp.AutoClear;
-                mAutoSave.Checked = tmp.AutoSave;
-                f.Close();
+            FileStream f = new FileStream(defFile, FileMode.Open);
+            ApplicationSettings tmp = (ApplicationSettings)bf.Deserialize(f);
+            AutoFill = tmp.AutoFill; // переброс ссылки, tmp будет уничтожен, но ссылка на этот лист будет жить
+            sessionKey = tmp.SessionKey;
+            mLog.Checked = tmp.Log;
+            mClear.Checked = tmp.Clear;
+            tbArtist.DataSource = AutoFill;
+            mSaveArtists.Checked = tmp.SaveArtists;
+            mAutoClear.Checked = tmp.AutoClear;
+            mAutoSave.Checked = tmp.AutoSave;
+            mExitConfirm.Checked = tmp.ExitConfirm;
+            f.Close();
         }
 
-        public List<Song> GetButch(int start, int count, List<Song> t) 
+        public List<Song> GetButch(int start, int count, List<Song> t)
         {
-            if (count+start > t.Count)
+            if (count + start > t.Count)
             {
                 return t.GetRange(start, t.Count - start);
             }
@@ -537,47 +355,6 @@ namespace Last.fm
                 return t.GetRange(start, count);
             }
         }
-
-        bool CheckAuthorisation(string login, string password)
-        {
-            TimeSpan w = DateTime.Now - (new DateTime(1970, 1, 1, 0, 0, 0));
-            TimeSpan t1 = new TimeSpan(3, 0, 0);
-            w -= t1; // вычитаем три часа, чтобы не было несоответствия из-за разницы в часовых поясах
-            int t = (int)w.TotalSeconds;
-            string client_id = "tst";
-            string client_ver = "1.0";
-            //string user = "v_decadence";
-            string timestamp = t.ToString();
-
-            string auth = MD5(MD5(password) + timestamp);//"";//токен авторизации который равен md5(md5(пароль) + timestamp)
-            string req = "http://post.audioscrobbler.com/?hs=true&p=1.2.1&c=" + client_id + "&v=" + client_ver + "&u=" + login + "&t=" + timestamp + "&a=" + auth;// + pre); // создаём с адресом в параметрах.
-            //HttpWebRequest fr = (HttpWebRequest)WebRequest.Create("http://www.google.com/");
-            // пример получения исходного кода страницы через запрос
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(req);
-
-            request.UserAgent = "Mozilla/5.0"; //
-            request.Timeout = 6000; // для того, чтобы программа не зависала, если интернет-соединение отсутствует
-            request.AllowAutoRedirect = true; // допустимо ли перенаправление
-            // request.Referer = "http://ffdr.ru/"; // адрес с которого мы якобы пришли на запрашиваемую страницу
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse(); // получение ответа от сервераа
-
-            string result = new StreamReader(response.GetResponseStream(),
-                                           Encoding.UTF8).ReadToEnd(); // чтение потока (поток ответа, кодировка).чтение потока до конца.
-            if (result.Contains("OK"))
-                return true;
-            else return false;
-        }
-
-        private void btnCheck_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnProfile_Click(object sender, EventArgs e)
-        {
-            
-        }
-
 
         private void tbTrack_Enter(object sender, EventArgs e)
         {
@@ -589,69 +366,37 @@ namespace Last.fm
             tbArtist.SelectAll();
         }
 
-        public void AddOneLine(string s)
+        public bool AddOneLine(string s)
         {
-            string artist = String.Empty;
-            string track = String.Empty;
-            string album = String.Empty;
-            bool art = true;
-            bool tr = false;
-            for (int i = 0; i < s.Length; i++)
+            string[] separ = {" - "};
+            string[] result = s.Split(separ, StringSplitOptions.None);
+            if (result.Length == 2)
             {
-                if (s[i] == ' ' && s[i + 1] == '-' && s[i + 2] == ' ')
-                {
-                    if (art)
-                    {
-                        art = false;
-                        tr = true;
-                        i += 3;
-                    }
-                    else
-                    {
-                        tr = false;
-                        i += 3;
-                    }
-                }
-
-                if (art)
-                {
-                    artist += s[i];
-                }
-                else if (tr)
-                {
-                    track += s[i];
-                }
-                else
-                {
-                  //  if (!((i) >= s.Length))
-                        album += s[i];
-                }
+                lbList.Items.Add(new Song { Artist = result[0], Track = result[1], Album = String.Empty });
+                return true;
             }
-            lbList.Items.Add(new Song { Artist = artist, Track = track, Album = album });
-            
+            else if (result.Length == 3)
+            {
+                lbList.Items.Add(new Song { Artist = result[0], Track = result[1], Album = result[2] });
+                return true;
+            }
+            else return false;
         }
 
         private void btnOneLine_Click(object sender, EventArgs e)
         {
             if (tbOneLine.Text.Length > 4)
-            AddOneLine(tbOneLine.Text);
-
-            lblSongCount.Text = lbList.Items.Count.ToString();
-            tbOneLine.Text = String.Empty;
+                if (AddOneLine(tbOneLine.Text))
+                {
+                    lblSongCount.Text = lbList.Items.Count.ToString();
+                    //tbOneLine.Text = String.Empty;
+                }
         }
 
         private void DeleteMS_Click(object sender, EventArgs e)
         {
-            if (lbList.SelectedIndex > -1)
-            {
-                lbList.Items.RemoveAt(lbList.SelectedIndex);
-                lblSongCount.Text = lbList.Items.Count.ToString();
-            }
-            else
-            {
-                MessageBox.Show("Выберите трек!", String.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
+            lbList.Items.RemoveAt(lbList.SelectedIndex);
+            lblSongCount.Text = lbList.Items.Count.ToString();
         }
 
         private void ClearMS_Click(object sender, EventArgs e)
@@ -660,32 +405,45 @@ namespace Last.fm
             lblSongCount.Text = "0";
         }
 
-        private void ArtistMS_Click(object sender, EventArgs e)
+        public bool IsSetUsername()
         {
-            if (lbList.SelectedIndex > -1)
+            if (String.IsNullOrEmpty(username))
             {
-                Song tmp = (Song)lbList.SelectedItem;
-                Process.Start("http://last.fm/music/" + tmp.Artist);
+                DialogResult f = MessageBox.Show("Для выполнения этой операции вам нужно ввести имя вашей учётной записи. Сделать это сейчас?", "Ошибка", MessageBoxButtons.YesNo);
+                if (f == DialogResult.Yes)
+                {
+                    frmSetUsername tmp = new frmSetUsername();
+                    if (DialogResult.OK == tmp.ShowDialog())
+                    {
+                        username = Program.username;
+                        return false;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                else return false;
             }
 
             else
             {
-                MessageBox.Show("Выберите трек!", String.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return true;
             }
+        }
+
+        private void ArtistMS_Click(object sender, EventArgs e)
+        {
+            Song tmp = (Song)lbList.SelectedItem;
+            Process.Start("http://last.fm/music/" + tmp.Artist);
         }
 
         private void SongMS_Click(object sender, EventArgs e)
         {
-            if (lbList.SelectedIndex > -1)
-            {
-                Song tmp = (Song)lbList.SelectedItem;
-                Process.Start("http://last.fm/music/" + tmp.Artist + "/_/" + tmp.Track);
-            }
+            Song tmp = (Song)lbList.SelectedItem;
+            Process.Start("http://last.fm/music/" + tmp.Artist + "/_/" + tmp.Track);
 
-            else
-            {
-                MessageBox.Show("Выберите трек!", String.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
         }
 
         private void FrmMain_Load(object sender, EventArgs e)
@@ -702,20 +460,20 @@ namespace Last.fm
                 MessageBox.Show(e1.Message, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            
+
         }
 
         void SaveConfig()
         {
-                FileStream g = new FileStream(defFile, FileMode.OpenOrCreate);
-                ApplicationSettings tmp = new ApplicationSettings(tbLogin.Text, tbPassword.Text, sessionKey, ((mLoginMode.Checked) ? 0 : 1), mLog.Checked, mClear.Checked, mSaveArtists.Checked, mAutoSave.Checked, mAutoClear.Checked);
-                if (AutoFill != null && AutoFill.Count > 0) // если есть что добавлять
+            FileStream g = new FileStream(defFile, FileMode.OpenOrCreate);
+            ApplicationSettings tmp = new ApplicationSettings(username, sessionKey, mLog.Checked, mClear.Checked, mSaveArtists.Checked, mAutoSave.Checked, mAutoClear.Checked, mExitConfirm.Checked);
+            if (AutoFill != null && AutoFill.Count > 0) // если есть что добавлять
                 tmp.AutoFill.AddRange(AutoFill); // добавление добавленных с начала сеанса
-                //tmp.AutoFill.AddRange((IEnumerable<string>)tbArtist.DataSource); //  
-                //HashSet
+            //tmp.AutoFill.AddRange((IEnumerable<string>)tbArtist.DataSource); //  
+            //HashSet
 
-                bf.Serialize(g, tmp);
-                g.Close();
+            bf.Serialize(g, tmp);
+            g.Close();
         }
 
         private void mSaveData_Click(object sender, EventArgs e)
@@ -727,37 +485,8 @@ namespace Last.fm
             catch (Exception e1)
             {
                 MessageBox.Show(e1.Message, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-               return;
+                return;
             }
-        }
-
-        private void mMode_CheckedChanged(object sender, EventArgs e)
-        {
-            
-            if (!mAccessMode.Checked)
-            {
-                gbAuthorisation.Enabled = true;
-                mGiveAccess.Enabled = false;
-            }
-            else
-            {
-                mGiveAccess.Enabled = true;
-                gbAuthorisation.Enabled = false;
-            }
-           // mAccessMode.Checked = !mLoginMode.Checked;
-            
-        }
-
-        private void mLoginMode_Click(object sender, EventArgs e)
-        {
-            mAccessMode.Checked = mLoginMode.Checked;
-            mLoginMode.Checked = !mLoginMode.Checked;
-        }
-
-        private void mAccessMode_Click(object sender, EventArgs e)
-        {
-            mLoginMode.Checked = mAccessMode.Checked;
-            mAccessMode.Checked = !mAccessMode.Checked;
         }
 
         private void mDeleteData_Click(object sender, EventArgs e)
@@ -771,7 +500,7 @@ namespace Last.fm
                 MessageBox.Show(e1.Message, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            
+
         }
 
         void ClearConfig()
@@ -781,11 +510,9 @@ namespace Last.fm
                 if (File.Exists(defFile))
                 {
                     FileStream g = new FileStream(defFile, FileMode.OpenOrCreate);
-                    ApplicationSettings tmp = new ApplicationSettings(String.Empty, String.Empty, String.Empty, 0, false, false, false, false, false);
+                    ApplicationSettings tmp = new ApplicationSettings(String.Empty, String.Empty, false, false, false, false, false, true);
                     tmp.AutoFill.Clear();
                     bf.Serialize(g, tmp);
-                    tbPassword.Text = String.Empty;
-                    tbLogin.Text = String.Empty;
                     sessionKey = String.Empty;
                     g.Close();
                 }
@@ -795,7 +522,7 @@ namespace Last.fm
                 MessageBox.Show(e1.Message, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
- 
+
         }
 
         private void mchbClear_Click(object sender, EventArgs e)
@@ -812,19 +539,18 @@ namespace Last.fm
         {
             try
             {
-                if (MessageBox.Show("Уверены?", "Выход из программы", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                if (mExitConfirm.Checked)
                 {
-                    e.Cancel = true;
-                    return;
+                    if (MessageBox.Show("Уверены?", "Выход из программы", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                    {
+                        e.Cancel = true; // отменяем закрытие программы
+                        return;
+                    }
                 }
-                else
-                {
-
-                    if (mAutoClear.Checked)
-                        ClearConfig();
-                    else if (mAutoSave.Checked)
-                        SaveConfig();
-                }
+                if (mAutoClear.Checked)
+                    ClearConfig();
+                else if (mAutoSave.Checked)
+                    SaveConfig();
             }
             catch (Exception e1)
             {
@@ -834,34 +560,25 @@ namespace Last.fm
 
         }
 
-        private void mCheckLogin_Click(object sender, EventArgs e)
-        {
-            if (String.IsNullOrEmpty(tbLogin.Text) || String.IsNullOrEmpty(tbPassword.Text))
-            {
-                MessageBox.Show("Не заполнены нужные поля!");
-                return;
-            }
-            else
-            {
-                if (CheckAuthorisation(tbLogin.Text, tbPassword.Text))
-                    MessageBox.Show("Данные введены верно!");
-                else MessageBox.Show("Данные введены неверно!");
-            }
-        }
-
         private void mProfile_Click(object sender, EventArgs e)
         {
-            if (!String.IsNullOrEmpty(tbLogin.Text))
-            Process.Start("http://lastfm.ru/user/" + tbLogin.Text);
-            else MessageBox.Show("Введите имя пользователя!");
+            if (IsSetUsername())
+                Process.Start("http://lastfm.ru/user/" + username);
         }
 
         public void GiveAccess()
         {
+            XmlDocument xmlP = new XmlDocument();
+
             HttpWebRequest tokenRequest = (HttpWebRequest)WebRequest.Create("http://ws.audioscrobbler.com/2.0/?method=auth.gettoken&api_key=" + ApiKey); // получение токена
             HttpWebResponse tokenResponse = (HttpWebResponse)tokenRequest.GetResponse();
             string tokenResult = new StreamReader(tokenResponse.GetResponseStream(),
                                            Encoding.UTF8).ReadToEnd();
+
+
+            xmlP.LoadXml(tokenResult);
+            string token = xmlP.SelectSingleNode("lfm/token").InnerText;
+            /*
             // извлечение токена
             string token = String.Empty;
             for (int i = tokenResult.IndexOf("<token>") + 7; i < tokenResult.IndexOf("</token"); i++)
@@ -869,7 +586,7 @@ namespace Last.fm
                 token += tokenResult[i];
             }
             //token = token.Remove(0, 7); // удаляем первый тег.
-
+            */
             // запрос на юзание, изменить на хранимую сессию
             Process s = Process.Start("http://www.last.fm/api/auth/?api_key=" + ApiKey + "&token=" + token);
 
@@ -887,21 +604,23 @@ namespace Last.fm
                 HttpWebResponse sessionResponse = (HttpWebResponse)sessionRequest.GetResponse();
                 string sessionResult = new StreamReader(sessionResponse.GetResponseStream(),
                                                Encoding.UTF8).ReadToEnd();
-                string sessK = String.Empty;
-
+                /*
                 // извлечение сессии
                 for (int i = sessionResult.IndexOf("<key>") + 5; i < sessionResult.IndexOf("</key>"); i++)
                 {
                     sessK += sessionResult[i];
                 }
                 sessionKey = sessK;
+                */
+                xmlP.LoadXml(sessionResult);
+                sessionKey = xmlP.SelectSingleNode("lfm/session/key").InnerText;
                 // Settings.Default.sessionKey = "fsddf";
             }
             else
             {
                 throw new Exception("Вы должны предоставить доступ приложению!");
             }
- 
+
         }
 
         private void mGiveAccess_Click(object sender, EventArgs e)
@@ -914,7 +633,7 @@ namespace Last.fm
             {
                 MessageBox.Show(e1.Message);
             }
-            
+
         }
 
         private void mMassiveAdd_Click(object sender, EventArgs e)
@@ -926,132 +645,39 @@ namespace Last.fm
 
         private void ArtistLibraryMS_Click(object sender, EventArgs e)
         {
-            if (lbList.SelectedIndex > -1)
+            try
             {
-                if (!String.IsNullOrEmpty(tbLogin.Text))
+                if (IsSetUsername())
                 {
+
                     Song tmp = (Song)lbList.SelectedItem;
-                    Process.Start("http://last.fm/user/" + tbLogin.Text+"/library/music/" + tmp.Artist);
+                    Process.Start("http://last.fm/user/" + username + "/library/music/" + tmp.Artist);
                 }
-                else MessageBox.Show("Введите имя пользователя!", String.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-
             }
-
-            else
+            catch (Exception e1)
             {
-                MessageBox.Show("Выберите трек!", String.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(e1.Message);
             }
         }
 
         private void mAbout_Click(object sender, EventArgs e)
         {
-            if (DialogResult.OK == MessageBox.Show("Автономный Last.fm скробблер, версия 1.2.2.0 (26 октября 2011 года) © 2011, Исадов Виктор. Все права защищены." + Environment.NewLine + "Открыть страницу программы?", "О программе", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
-            {
-                //Process.Start("http://vkontakte/victor_decadence");
-                Process.Start("http://vkontakte.ru/note4223988_10790267");
-            }
-        }
-
-        private void pbLoved_Click(object sender, EventArgs e)
-        {
-            try
-            {
-
-            DialogResult d = MessageBox.Show("Добавить текущий трек в любимые? Для этого нужно дать приложению доступ к вашему профилю, а также ввести логин/пароль. Трек также будет заскробблен.", String.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question); 
             
-            if (d == DialogResult.Yes)
-              {
-                if (String.IsNullOrEmpty(tbArtist.Text) || String.IsNullOrEmpty(tbTrack.Text) || String.IsNullOrEmpty(tbPassword.Text) || String.IsNullOrEmpty(tbLogin.Text))
-                {
-                    MessageBox.Show("Не введены необходимые данные!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                string sessK = GetSessionKey();
-
-                if (String.IsNullOrEmpty(sessK))
-                {
-                    DialogResult f = MessageBox.Show("Вы должны предоставить приложению доступ к своему профилю. Сделать это сейчас?", "Ошибка", MessageBoxButtons.YesNo);
-                    if (f == DialogResult.Yes)
-                    {
-                        mGiveAccess_Click(null, EventArgs.Empty);
-                    }
-                    else
-                    {
-                        throw new Exception("Вы должны предоставить приложению доступ к своему профилю! Или выберите другой режим отправки треков.");
-                    }
-                }
-                
-                TrackLoved(tbArtist.Text, tbTrack.Text);
-                MessageBox.Show("Трек заскробблен и добавлен в любимые!");
+            if (DialogResult.OK == MessageBox.Show(info, "О программе", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
+            {
+                Process.Start("http://vk.com/note4223988_10790267");
             }
-            else
-                return;
-
-            }
-                catch (Exception e1)
-                {
-                    MessageBox.Show(e1.Message);
-                }
         }
-
-        void TrackLoved(string artist, string track)
-        {
-
-            // новый апи метод track.love должен следовать за старым скробблингом (самбишин) песни с рейтингом L.
-            List<Song> s = new List<Song>();
-            s.Add(new Song { Artist = artist, Track = track });
-            ScrobbleTracks(tbLogin.Text, tbPassword.Text, s); // делаем наш запрос с одной песней
-            
-            Thread.Sleep(2000); // ждём пару секунд, чтобы убедиться, что сервер ласта успел обработать предыдущий запрос.
-
-            string sessK = GetSessionKey();
-
-            string signature = String.Empty;
-            string parametres = String.Empty;
-
-            signature += "api_key" + ApiKey + "artist" + artist + "methodtrack.lovesk" + sessK + "track" + track + mySecret;
-
-
-            // parametres += "method=track.love&track=" + HttpUtility.UrlEncode(track) + "artist=" + HttpUtility.UrlEncode(artist) + "&api_key=" + ApiKey + "&sk=" + sessK + "&api_sig=" + MD5(signature);
-            parametres += "method=track.love&artist=" + HttpUtility.UrlEncode(artist) + "&track=" + HttpUtility.UrlEncode(track) + "&api_key=" + ApiKey + "&sk=" + sessK + "&api_sig=" + MD5(signature); 
-            //parametres = "dgfgdfg";
-            HttpWebRequest lovedRequest = (HttpWebRequest)WebRequest.Create("http://ws.audioscrobbler.com/2.0/");
-            lovedRequest.ServicePoint.Expect100Continue = false; // важная строка! из-за её отсутствия сервер ласта рвал соединение
-
-            // Настраиваем параметры запроса
-            lovedRequest.UserAgent = "Mozilla/5.0";
-            lovedRequest.Method = "POST"; // Указываем метод отправки данных скрипту, в случае с Post обязательно
-            lovedRequest.ContentType = "application/x-www-form-urlencoded"; // основная строчка из-за которой не работало! (точнее, из-за того, что она была закомменчена). В случае с Post обязательна, видимо из-за её отсутствия неправильно кодировались данные
-            lovedRequest.Timeout = 5000; // 
-
-            byte[] param = Encoding.UTF8.GetBytes(parametres);
-            lovedRequest.ContentLength = param.Length;
-
-            lovedRequest.GetRequestStream().Write(param, 0, param.Length);
-            lovedRequest.GetRequestStream().Close();
-
-            HttpWebResponse lovedResponse = (HttpWebResponse)lovedRequest.GetResponse();
-            string lovedResult = new StreamReader(lovedResponse.GetResponseStream(),
-                                           Encoding.UTF8).ReadToEnd();
-
-            if (!lovedResult.Contains("status=\"ok\"")) // проверяет, содержит ли строка эту подстроку, с учётом регистра
-                throw new Exception("Трек не добавлен в любимые! Причина - " + lovedResult);
-           // MessageBox.Show(lovedResult);
-        }
-
 
         private void mGetTracks_Click(object sender, EventArgs e)
         {
-            FrmExport frmEx = new FrmExport(tbLogin.Text);
+            FrmExport frmEx = new FrmExport(username);
             frmEx.Show();
-            //string j = GetTracks("v_decadence", null);
-           // int g = 0;
         }
 
         public void SaveLog(bool isComplete)
         {
-            StreamWriter sw = new StreamWriter(logFile, true, Encoding.UTF8);   
+            StreamWriter sw = new StreamWriter(logFile, true, Encoding.UTF8);
             sw.WriteLine(DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLongTimeString() + ". Статус - " + ((isComplete) ? "Успешно" : "Не успешно"));
 
             for (int i = 0; i < lbList.Items.Count; i++)
@@ -1113,10 +739,103 @@ namespace Last.fm
 
         private void mWithAlbum_CheckedChanged(object sender, EventArgs e)
         {
-            tbAlbum.Visible = lblAlbum.Visible = mWithAlbum.Checked;
+            chStartTime.Checked = dtStart.Visible = tbAlbum.Visible = lblAlbum.Visible = mWithAlbum.Checked;
         }
 
+        private void chStartTime_CheckedChanged(object sender, EventArgs e)
+        {
+            dtStart.Enabled = chStartTime.Checked;
+        }
 
+        private void mAddDirectory_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog fd = new FolderBrowserDialog();
+            fd.RootFolder = Environment.SpecialFolder.Desktop;
+            if (DialogResult.OK == fd.ShowDialog())
+            {
+                AddFolder(fd.SelectedPath);
+            }
+
+        }
+
+        public void AddFolder(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                DirectoryInfo dI = new DirectoryInfo(path);
+                FileInfo [] fI = dI.GetFiles();
+
+                for (int i = 0; i < fI.Length; i++)
+                {
+                    if (CheckExtension(fI[i].Extension)) // проверяем расширение
+                    {
+                        AddOneLine(Path.GetFileNameWithoutExtension(fI[i].FullName)); // добавляем без расширения
+                    }
+                }
+                lblSongCount.Text = lbList.Items.Count.ToString();
+            }
+            else MessageBox.Show("Директория не существует");
+        }
+
+        public bool CheckExtension(string ext)
+        {
+            return allowedExtension.Contains(ext);
+        }
+
+        private void cbTimeType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cbTimeType.SelectedIndex == 0)
+            {
+                dtStart.Format = DateTimePickerFormat.Custom;
+                dtStart.ShowUpDown = false;
+            }
+
+            else
+            {
+                dtStart.Format = DateTimePickerFormat.Time;
+                dtStart.ShowUpDown = true;
+            }
+        }
+
+        private void mSetUserName_Click(object sender, EventArgs e)
+        {
+            frmSetUsername tmp = new frmSetUsername();
+            if (DialogResult.OK == tmp.ShowDialog())
+            {
+                username = Program.username;
+            }
+        }
+
+        private void cMSList_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            cMSList.Enabled = (lbList.SelectedIndex < 0) ? false : true;
+        }
+
+        private void mEdit_Click(object sender, EventArgs e)
+        {
+            Song tmp = (Song)lbList.SelectedItem;
+            tbArtist.Text = tmp.Artist;
+            tbTrack.Text = tmp.Track;
+            tbAlbum.Text = tmp.Album;
+            lbList.Items.RemoveAt(lbList.SelectedIndex);
+            UpdateCountLabel();
+
+        }
+
+        public void UpdateCountLabel()
+        {
+            lblSongCount.Text = lbList.Items.Count.ToString();
+        }
+
+        private void mExitConfirm_Click(object sender, EventArgs e)
+        {
+            mExitConfirm.Checked = !mExitConfirm.Checked;
+        }
+
+        private void tbAlbum_Enter(object sender, EventArgs e)
+        {
+            tbAlbum.SelectAll();
+        }
     }
 }
 
@@ -1347,8 +1066,6 @@ void ScrobbleOneTrack(string login, string password, string artist, string track
 
 #endregion
 
-
-
 // добавить в референс System.Web, для работы с HttpUtility
 // как впихнуть пустую строку? (видимо, String.Empty всё-таки работает. Тогда она принимает вид &s=&r=4... Пробелы между недопустимы (только между словами в значении параметра))
 
@@ -1396,4 +1113,14 @@ string ziga = MD5("api_key"+ApiKey+"artist[0]prodigymethodtrack.scrobblesk"+sess
 /*
 tbArtist.DataSource = null;
 tbArtist.DataSource = AutoFill;
-tbArtist.PerformLayout(); комбобокс только так обновляет свой датасорс сразу!*/
+tbArtist.PerformLayout(); комбобокс только так обновляет свой датасорс сразу!
+ 
+
+// продолжительность от первого скроббла только в своей библиотеке, а при клике выдаётся нормальная песня со всей инфой
+// неизвестная продолжительность? (оставить пустой) - не пашет
+
+// русские треки не скробблились из-за того, что в строке:
+ byte[] EncodedPostParams = Encoding.UTF8.GetBytes(submissionReq); была ASCII кодировка
+ 
+ Нельзя в имени трека и исполнителя писать &. Это нарушает структуру get запроса. Видимо, нужно писать код этого символа (урл кодирование поможет).
+ */

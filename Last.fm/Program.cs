@@ -7,6 +7,7 @@ namespace Last.fm
 {
     static class Program
     {
+        public static string username = String.Empty;
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
