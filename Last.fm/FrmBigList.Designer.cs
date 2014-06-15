@@ -41,23 +41,25 @@
             this.tbBig.Multiline = true;
             this.tbBig.Name = "tbBig";
             this.tbBig.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tbBig.Size = new System.Drawing.Size(245, 377);
+            this.tbBig.Size = new System.Drawing.Size(290, 377);
             this.tbBig.TabIndex = 0;
-            this.tbBig.Text = "Example - Example\r\nIn Flames - Trigger\r\nLinkin Park - In The End\r\n";
+            this.tbBig.Text = "Example Artist - Example Track - Example Album\r\nDisturbed - The Curse - Indestruc" +
+                "tible \r\nLinkin Park - In The End - Hybrid Theory\r\n";
             // 
             // lblInfo
             // 
             this.lblInfo.AutoSize = true;
-            this.lblInfo.Location = new System.Drawing.Point(251, 3);
+            this.lblInfo.Location = new System.Drawing.Point(293, 242);
             this.lblInfo.Name = "lblInfo";
-            this.lblInfo.Size = new System.Drawing.Size(204, 65);
+            this.lblInfo.Size = new System.Drawing.Size(204, 78);
             this.lblInfo.TabIndex = 1;
-            this.lblInfo.Text = "Одна песня на одну строку.\r\nСтроки формата: \r\nИсполнитель - Название песни\r\nПри н" +
-                "есоответствии могут возникнуть\r\nошибки при добавлении\r\n";
+            this.lblInfo.Text = "Одна песня на одну строку.\r\nСтроки формата: \r\nИсполнитель - Название песни - \r\nНа" +
+                "звание альбома (Необязательно)\r\nПри несоответствии могут возникнуть\r\nошибки во в" +
+                "ремя добавления.\r\n";
             // 
             // btnOk
             // 
-            this.btnOk.Location = new System.Drawing.Point(254, 71);
+            this.btnOk.Location = new System.Drawing.Point(295, 342);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 23);
             this.btnOk.TabIndex = 2;
@@ -67,7 +69,7 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(371, 71);
+            this.btnCancel.Location = new System.Drawing.Point(399, 342);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 3;
@@ -79,7 +81,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(458, 377);
+            this.ClientSize = new System.Drawing.Size(510, 377);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOk);
             this.Controls.Add(this.lblInfo);

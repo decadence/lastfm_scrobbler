@@ -13,6 +13,7 @@ namespace Settings
         public int Mode { get; set; }
         public bool Log { get; set; }
         public bool Clear { get; set; }
+        public bool WithAlbum { set; get; }
         public bool SaveArtists { set; get; }
         public List<String> AutoFill { set; get; }
         public bool AutoSave { set; get; }

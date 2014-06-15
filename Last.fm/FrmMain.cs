@@ -208,17 +208,28 @@ namespace Last.fm
                     // кодирование, чтобы спецсимволы правильно воспринимались
                     submissionReqString += "&artist[" + i + "]=" + HttpUtility.UrlEncode(T[i].Artist);
                     submissionReqString += "&track[" + i + "]=" + HttpUtility.UrlEncode(T[i].Track);
-                    submissionReqString += "&timestamp[" + i + "]=" + times[i].ToString(); 
+                    submissionReqString += "&timestamp[" + i + "]=" + times[i].ToString();
+                    //if (String.IsNullOrEmpty(T[i].Album))
+                   // submissionReqString += "&album[" + i + "]=" + HttpUtility.UrlEncode(String.Empty);
+                    //else 
+                        submissionReqString += "&album[" + i + "]=" + HttpUtility.UrlEncode(T[i].Album);
                     //timestamp -= 300;
                 }
 
 
                 // сигнатура:
                 string signature = String.Empty;
+
+
+                for (int i = 0; i < cnt; i++)
+                {
+                    signature += "album[" + N[i].ToString() + "]" + T[N[i]].Album;
+                }
+
                 signature += "api_key" + ApiKey;
                 
                 // для сигнатуры нельзя делать Url кодирование, это сбивает запрос на 403 ошибку!
-                // все параметры нужно в альфа бета порядке делать. Здесь он выдавал не в той последовательности, время и параметры не совпадали.
+                // !!!все параметры нужно в альфа бета порядке делать!!!!. Здесь он выдавал не в той последовательности, время и параметры не совпадали.
                 for (int i = 0; i < cnt; i++)
                 {
                     signature += "artist[" + N[i].ToString() + "]" + T[N[i]].Artist; // соответствие кэфов
@@ -234,6 +245,7 @@ namespace Last.fm
                 {
                     signature += "track[" + N[i].ToString() + "]" + T[N[i]].Track;
                 }
+
 
                 signature += mySecret; // добавляем секрет в конец
                 submissionReqString += "&api_sig=" + MD5(signature); // добавляем сигнатуру к общему запросу
@@ -342,7 +354,10 @@ namespace Last.fm
             }
             for (int i = 0; i < T.Count; i++)
             {
-                submissionReq += "&b[" + i + "]=" + String.Empty;
+                //if (String.IsNullOrEmpty(T[i].Album)) 
+               // submissionReq += "&b[" + i + "]=" + String.Empty;
+                //else 
+                submissionReq += "&b[" + i + "]=" + HttpUtility.UrlEncode(T[i].Album);
             }
             for (int i = 0; i < T.Count; i++)
             {
@@ -410,7 +425,7 @@ namespace Last.fm
             }
             string q1 = tbArtist.Text;
             string q2 = tbTrack.Text;
-            Song tmp = new Song{ Artist = tbArtist.Text, Track = tbTrack.Text};
+            Song tmp = new Song{ Artist = tbArtist.Text, Track = tbTrack.Text, Album = tbAlbum.Text};
             lbList.Items.Add(tmp);
             if (mSaveArtists.Checked)
             {
@@ -590,25 +605,41 @@ namespace Last.fm
         {
             string artist = String.Empty;
             string track = String.Empty;
+            string album = String.Empty;
             bool art = true;
+            bool tr = false;
             for (int i = 0; i < s.Length; i++)
             {
-                if (art && s[i] == ' ' && s[i + 1] == '-' && s[i + 2] == ' ')
+                if (s[i] == ' ' && s[i + 1] == '-' && s[i + 2] == ' ')
                 {
-                    art = false;
+                    if (art)
+                    {
+                        art = false;
+                        tr = true;
+                        i += 3;
+                    }
+                    else
+                    {
+                        tr = false;
+                        i += 3;
+                    }
                 }
 
                 if (art)
                 {
                     artist += s[i];
                 }
+                else if (tr)
+                {
+                    track += s[i];
+                }
                 else
                 {
-                    if (!((i + 3) >= s.Length))
-                        track += s[i + 3];
+                  //  if (!((i) >= s.Length))
+                        album += s[i];
                 }
             }
-            lbList.Items.Add(new Song { Artist = artist, Track = track });
+            lbList.Items.Add(new Song { Artist = artist, Track = track, Album = album });
             
         }
 
@@ -926,7 +957,7 @@ namespace Last.fm
 
         private void mAbout_Click(object sender, EventArgs e)
         {
-            if (DialogResult.OK == MessageBox.Show("© 2011, Исадов Виктор. Все права защищены."+ Environment.NewLine+"Открыть страницу программы?", "О программе", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
+            if (DialogResult.OK == MessageBox.Show("Автономный Last.fm скробблер, версия 1.2.2.0 (26 октября 2011 года) © 2011, Исадов Виктор. Все права защищены." + Environment.NewLine + "Открыть страницу программы?", "О программе", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
             {
                 //Process.Start("http://vkontakte/victor_decadence");
                 Process.Start("http://vkontakte.ru/note4223988_10790267");
@@ -1090,6 +1121,11 @@ namespace Last.fm
                 Process.Start(logFile);
             }
             else MessageBox.Show("Лог отсутствует!", String.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void mWithAlbum_CheckedChanged(object sender, EventArgs e)
+        {
+            tbAlbum.Visible = lblAlbum.Visible = mWithAlbum.Checked;
         }
 
 

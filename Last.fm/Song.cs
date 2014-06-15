@@ -9,10 +9,13 @@ namespace Last.fm
     {
         public string Artist { set; get; }
         public string Track { set; get; }
+        public string Album { set; get; }
 
         public override string ToString()
         {
-            return Artist + " - " + Track;
+            if (String.IsNullOrEmpty(Album))
+                return Artist + " - " + Track;
+            else return Artist + " - " + Track + " - " + Album;
         }
 
     }
