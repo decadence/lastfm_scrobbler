@@ -1,0 +1,31 @@
+Русские треки не скробблились из-за того, что в строке:
+byte[] EncodedPostParams = Encoding.UTF8.GetBytes(submissionReq); была ASCII кодировка
+ 
+Нельзя в имени трека и исполнителя писать &. Это нарушает структуру get запроса. Видимо, нужно писать код этого символа (урл кодирование поможет).
+
+Правильный порядок индексов при мультиотправке.
+int[] t = { 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 1, 20, 2, 3, 4, 5, 6, 7, 8, 9};
+Параметры должны идти не a[0]...m[0]&a[1], a a[0]&a[1]...m[0]&m[1]. 
+
+При добавлении новых песен он берёт альбом, продолжительности и т.д. с твоего запроса, то есть при скробблинге уже существующих можно не париться (главное, исполнитель и название трека). Числовые поля лучше всё-таки заполнять хоть чем-то, ибо сервер может не воспринять песню. Но лучше 1 раз песню добавлять с правильной продолжительностью из другого места. Так что лучше отсюда добавлять только те песни, которые уже есть в библиотеке, чтобы не создавать кривые второстепенные данные (альбом, продолжительность и т.д. :))
+
+Сигнатура делается отдельно для каждого(!) апи-метода и в ней параметры располагаются имязначение в альфа-порядке
+
+Мясо:
+
+
+/*
+string ziga = MD5("api_key"+ApiKey+"artist[0]prodigymethodtrack.scrobblesk"+sessK+"timestamp[0]"+timestamp+"track[0]smack"+mySecret);
+                string sf = "method=track.scrobble&sk=" + sessK + "&api_key=" + ApiKey + "&artist[0]=prodigy&track[0]=smack&timestamp[0]=" + timestamp + "&api_sig=" + ziga;
+                string temp3 = "method=track.scrobble&track[0]=Rocket&artist[0]=Defueppard&timestamp[0]=" + (timestamp - 300).ToString() + "&track[1]=Women&artist[1]=DefLeppard&timestamp[1]=" + timestamp.ToString() + "&api_key=" + ApiKey + "&api_sig=" + ziga + "&sk=" + sessK;
+ рабочие строки для нового АПИ
+ 
+ * api_keyea13f7fe78f7ef62bbbc5c43dcd6dfcbartist[0]Example Artistmethodtrack.scrobbleskf448e2ecfb287a466162b24efdf588ectimestamp[0]1298908503track[0]Example Trackaeaa72cd88242eb7f1437ed8b9937e16"
+ 
+ method=track.scrobble&sk=f448e2ecfb287a466162b24efdf588ec&api_key=ea13f7fe78f7ef62bbbc5c43dcd6dfcb&artist[0]=Example Artist&timestamp[0]=1298908803&track[0]=Example Track&api_sig=141694047efdb18d29916b6bc4bf0b39
+ 
+ */
+
+// не совпадение сигнатуры и отправки из-за таймстампа!
+// string submissionReq = "s=" + sessID + "&a[0]=" + artist + "&a[1]=Disturbed&t[0]=" + track + "&t[1]=Session&i[0]=" + timestamp + "&i[1]=" + (timestamp+300) + "&o[0]=P&o[1]=P&r[0]=L&r[1]=L&l[0]=300&l[1]=300&b[0]=" + String.Empty + "&b[1]=" + String.Empty + "&n[0]=1&n[1]=1&m[0]=" + String.Empty + "&m[1]=" + String.Empty;
+
