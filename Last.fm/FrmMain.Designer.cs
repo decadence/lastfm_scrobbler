@@ -50,11 +50,6 @@
             this.lblArtist = new System.Windows.Forms.Label();
             this.tbTrack = new System.Windows.Forms.TextBox();
             this.btnSend = new System.Windows.Forms.Button();
-            this.gbAuthorisation = new System.Windows.Forms.GroupBox();
-            this.lblPassword = new System.Windows.Forms.Label();
-            this.lblLogin = new System.Windows.Forms.Label();
-            this.tbPassword = new System.Windows.Forms.TextBox();
-            this.tbLogin = new System.Windows.Forms.TextBox();
             this.lblSongCount = new System.Windows.Forms.Label();
             this.pBEqualiser = new System.Windows.Forms.PictureBox();
             this.mainMenu = new System.Windows.Forms.MenuStrip();
@@ -75,20 +70,17 @@
             this.mAutoSave = new System.Windows.Forms.ToolStripMenuItem();
             this.mAutoClear = new System.Windows.Forms.ToolStripMenuItem();
             this.mData = new System.Windows.Forms.ToolStripMenuItem();
-            this.mCheckLogin = new System.Windows.Forms.ToolStripMenuItem();
             this.mGiveAccess = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.mSaveData = new System.Windows.Forms.ToolStripMenuItem();
             this.mDeleteData = new System.Windows.Forms.ToolStripMenuItem();
-            this.mSendingMode = new System.Windows.Forms.ToolStripMenuItem();
-            this.mLoginMode = new System.Windows.Forms.ToolStripMenuItem();
-            this.mAccessMode = new System.Windows.Forms.ToolStripMenuItem();
+            this.pbGo = new System.Windows.Forms.PictureBox();
             this.cMSList.SuspendLayout();
             this.gbTools.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbLoved)).BeginInit();
-            this.gbAuthorisation.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pBEqualiser)).BeginInit();
             this.mainMenu.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbGo)).BeginInit();
             this.SuspendLayout();
             // 
             // lbList
@@ -96,9 +88,9 @@
             this.lbList.ContextMenuStrip = this.cMSList;
             this.lbList.FormattingEnabled = true;
             this.lbList.HorizontalScrollbar = true;
-            this.lbList.Location = new System.Drawing.Point(175, 29);
+            this.lbList.Location = new System.Drawing.Point(175, 27);
             this.lbList.Name = "lbList";
-            this.lbList.Size = new System.Drawing.Size(183, 225);
+            this.lbList.Size = new System.Drawing.Size(183, 160);
             this.lbList.TabIndex = 8;
             // 
             // cMSList
@@ -179,10 +171,10 @@
             this.gbTools.Controls.Add(this.lblArtist);
             this.gbTools.Controls.Add(this.tbTrack);
             this.gbTools.Controls.Add(this.btnAdd);
-            this.gbTools.Location = new System.Drawing.Point(5, 99);
+            this.gbTools.Location = new System.Drawing.Point(8, 29);
             this.gbTools.Name = "gbTools";
             this.gbTools.Size = new System.Drawing.Size(161, 124);
-            this.gbTools.TabIndex = 6;
+            this.gbTools.TabIndex = 0;
             this.gbTools.TabStop = false;
             this.gbTools.Text = "Работа со списком песен:";
             // 
@@ -268,7 +260,7 @@
             // 
             // btnSend
             // 
-            this.btnSend.Location = new System.Drawing.Point(5, 227);
+            this.btnSend.Location = new System.Drawing.Point(11, 159);
             this.btnSend.Name = "btnSend";
             this.btnSend.Size = new System.Drawing.Size(32, 23);
             this.btnSend.TabIndex = 7;
@@ -276,56 +268,10 @@
             this.btnSend.UseVisualStyleBackColor = true;
             this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
             // 
-            // gbAuthorisation
-            // 
-            this.gbAuthorisation.Controls.Add(this.lblPassword);
-            this.gbAuthorisation.Controls.Add(this.lblLogin);
-            this.gbAuthorisation.Controls.Add(this.tbPassword);
-            this.gbAuthorisation.Controls.Add(this.tbLogin);
-            this.gbAuthorisation.Location = new System.Drawing.Point(5, 23);
-            this.gbAuthorisation.Name = "gbAuthorisation";
-            this.gbAuthorisation.Size = new System.Drawing.Size(161, 70);
-            this.gbAuthorisation.TabIndex = 7;
-            this.gbAuthorisation.TabStop = false;
-            this.gbAuthorisation.Text = "Авторизация:";
-            // 
-            // lblPassword
-            // 
-            this.lblPassword.AutoSize = true;
-            this.lblPassword.Location = new System.Drawing.Point(2, 47);
-            this.lblPassword.Name = "lblPassword";
-            this.lblPassword.Size = new System.Drawing.Size(45, 13);
-            this.lblPassword.TabIndex = 4;
-            this.lblPassword.Text = "Пароль";
-            // 
-            // lblLogin
-            // 
-            this.lblLogin.AutoSize = true;
-            this.lblLogin.Location = new System.Drawing.Point(2, 21);
-            this.lblLogin.Name = "lblLogin";
-            this.lblLogin.Size = new System.Drawing.Size(38, 13);
-            this.lblLogin.TabIndex = 3;
-            this.lblLogin.Text = "Логин";
-            // 
-            // tbPassword
-            // 
-            this.tbPassword.Location = new System.Drawing.Point(47, 44);
-            this.tbPassword.Name = "tbPassword";
-            this.tbPassword.PasswordChar = '*';
-            this.tbPassword.Size = new System.Drawing.Size(89, 20);
-            this.tbPassword.TabIndex = 11;
-            // 
-            // tbLogin
-            // 
-            this.tbLogin.Location = new System.Drawing.Point(47, 18);
-            this.tbLogin.Name = "tbLogin";
-            this.tbLogin.Size = new System.Drawing.Size(89, 20);
-            this.tbLogin.TabIndex = 10;
-            // 
             // lblSongCount
             // 
             this.lblSongCount.AutoSize = true;
-            this.lblSongCount.Location = new System.Drawing.Point(138, 232);
+            this.lblSongCount.Location = new System.Drawing.Point(135, 164);
             this.lblSongCount.Name = "lblSongCount";
             this.lblSongCount.Size = new System.Drawing.Size(13, 13);
             this.lblSongCount.TabIndex = 10;
@@ -334,7 +280,7 @@
             // pBEqualiser
             // 
             this.pBEqualiser.Image = ((System.Drawing.Image)(resources.GetObject("pBEqualiser.Image")));
-            this.pBEqualiser.Location = new System.Drawing.Point(158, 234);
+            this.pBEqualiser.Location = new System.Drawing.Point(153, 165);
             this.pBEqualiser.Name = "pBEqualiser";
             this.pBEqualiser.Size = new System.Drawing.Size(12, 12);
             this.pBEqualiser.TabIndex = 16;
@@ -345,8 +291,7 @@
             this.mainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mMain,
             this.mSettings,
-            this.mData,
-            this.mSendingMode});
+            this.mData});
             this.mainMenu.Location = new System.Drawing.Point(0, 0);
             this.mainMenu.Name = "mainMenu";
             this.mainMenu.Size = new System.Drawing.Size(358, 24);
@@ -484,7 +429,6 @@
             // mData
             // 
             this.mData.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mCheckLogin,
             this.mGiveAccess,
             this.toolStripSeparator1,
             this.mSaveData,
@@ -492,13 +436,6 @@
             this.mData.Name = "mData";
             this.mData.Size = new System.Drawing.Size(62, 20);
             this.mData.Text = "Данные";
-            // 
-            // mCheckLogin
-            // 
-            this.mCheckLogin.Name = "mCheckLogin";
-            this.mCheckLogin.Size = new System.Drawing.Size(282, 22);
-            this.mCheckLogin.Text = "Проверить логин/пароль";
-            this.mCheckLogin.Click += new System.EventHandler(this.mCheckLogin_Click);
             // 
             // mGiveAccess
             // 
@@ -526,46 +463,28 @@
             this.mDeleteData.Text = "Удалить все настройки и данные";
             this.mDeleteData.Click += new System.EventHandler(this.mDeleteData_Click);
             // 
-            // mSendingMode
+            // pbGo
             // 
-            this.mSendingMode.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mLoginMode,
-            this.mAccessMode});
-            this.mSendingMode.Name = "mSendingMode";
-            this.mSendingMode.Size = new System.Drawing.Size(111, 20);
-            this.mSendingMode.Text = "Режим отправки";
-            // 
-            // mLoginMode
-            // 
-            this.mLoginMode.Checked = true;
-            this.mLoginMode.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.mLoginMode.Name = "mLoginMode";
-            this.mLoginMode.ShowShortcutKeys = false;
-            this.mLoginMode.Size = new System.Drawing.Size(200, 22);
-            this.mLoginMode.Text = "Ввод логина/пароля";
-            this.mLoginMode.CheckedChanged += new System.EventHandler(this.mMode_CheckedChanged);
-            this.mLoginMode.Click += new System.EventHandler(this.mLoginMode_Click);
-            // 
-            // mAccessMode
-            // 
-            this.mAccessMode.Name = "mAccessMode";
-            this.mAccessMode.ShowShortcutKeys = false;
-            this.mAccessMode.Size = new System.Drawing.Size(200, 22);
-            this.mAccessMode.Text = "Подтверждение доступа";
-            this.mAccessMode.CheckedChanged += new System.EventHandler(this.mMode_CheckedChanged);
-            this.mAccessMode.Click += new System.EventHandler(this.mAccessMode_Click);
+            this.pbGo.Image = ((System.Drawing.Image)(resources.GetObject("pbGo.Image")));
+            this.pbGo.InitialImage = ((System.Drawing.Image)(resources.GetObject("pbGo.InitialImage")));
+            this.pbGo.Location = new System.Drawing.Point(46, 162);
+            this.pbGo.Name = "pbGo";
+            this.pbGo.Size = new System.Drawing.Size(20, 22);
+            this.pbGo.TabIndex = 21;
+            this.pbGo.TabStop = false;
+            this.pbGo.Visible = false;
             // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(358, 251);
+            this.ClientSize = new System.Drawing.Size(358, 187);
+            this.Controls.Add(this.pbGo);
             this.Controls.Add(this.mainMenu);
-            this.Controls.Add(this.gbAuthorisation);
-            this.Controls.Add(this.btnSend);
             this.Controls.Add(this.lblList);
-            this.Controls.Add(this.pBEqualiser);
+            this.Controls.Add(this.btnSend);
             this.Controls.Add(this.lbList);
+            this.Controls.Add(this.pBEqualiser);
             this.Controls.Add(this.gbTools);
             this.Controls.Add(this.lblSongCount);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
@@ -580,11 +499,10 @@
             this.gbTools.ResumeLayout(false);
             this.gbTools.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbLoved)).EndInit();
-            this.gbAuthorisation.ResumeLayout(false);
-            this.gbAuthorisation.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pBEqualiser)).EndInit();
             this.mainMenu.ResumeLayout(false);
             this.mainMenu.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbGo)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -599,11 +517,6 @@
         private System.Windows.Forms.Button btnSend;
         private System.Windows.Forms.Label lblTrack;
         private System.Windows.Forms.Label lblArtist;
-        private System.Windows.Forms.GroupBox gbAuthorisation;
-        private System.Windows.Forms.Label lblPassword;
-        private System.Windows.Forms.Label lblLogin;
-        private System.Windows.Forms.TextBox tbPassword;
-        private System.Windows.Forms.TextBox tbLogin;
         private System.Windows.Forms.Button btnOneLine;
         private System.Windows.Forms.TextBox tbOneLine;
         private System.Windows.Forms.ContextMenuStrip cMSList;
@@ -619,9 +532,6 @@
         private System.Windows.Forms.ToolStripMenuItem mData;
         private System.Windows.Forms.ToolStripMenuItem mSaveData;
         private System.Windows.Forms.ToolStripMenuItem mDeleteData;
-        private System.Windows.Forms.ToolStripMenuItem mSendingMode;
-        private System.Windows.Forms.ToolStripMenuItem mLoginMode;
-        private System.Windows.Forms.ToolStripMenuItem mAccessMode;
         private System.Windows.Forms.ToolStripMenuItem mExit;
         private System.Windows.Forms.ToolStripMenuItem mProfile;
         private System.Windows.Forms.ToolStripSeparator mSeparator;
@@ -629,7 +539,6 @@
         private System.Windows.Forms.ToolStripMenuItem mAbout;
         private System.Windows.Forms.PictureBox pbLoved;
         private System.Windows.Forms.ToolStripMenuItem mGetTracks;
-        private System.Windows.Forms.ToolStripMenuItem mCheckLogin;
         private System.Windows.Forms.ToolStripMenuItem mGiveAccess;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem mMassiveAdd;
@@ -645,6 +554,7 @@
         private System.Windows.Forms.ToolStripMenuItem mWithAlbum;
         private System.Windows.Forms.TextBox tbAlbum;
         private System.Windows.Forms.Label lblAlbum;
+        private System.Windows.Forms.PictureBox pbGo;
     }
 }
 

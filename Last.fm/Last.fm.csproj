@@ -112,6 +112,7 @@
     <Compile Include="Song.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="pictures\loader.gif" />
     <Content Include="pictures\icon_eq.gif" />
     <Content Include="pictures\Last.fm.ico" />
     <Content Include="pictures\loved.jpg" />

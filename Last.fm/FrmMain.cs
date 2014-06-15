@@ -443,6 +443,8 @@ namespace Last.fm
 
         private void btnSend_Click(object sender, EventArgs e)
         {
+            pbGo.Visible = true;
+
             if (lbList.Items.Count == 0)
             {
                 MessageBox.Show("Не добавлено ни одного трека!");
@@ -475,21 +477,7 @@ namespace Last.fm
 
                 for (int i = 0; i < iterations; i++)
                 {
-                    if (mLoginMode.Checked)
-                    {
-                        if (String.IsNullOrEmpty(tbLogin.Text) || String.IsNullOrEmpty(tbPassword.Text))
-                        {
-                            MessageBox.Show("Не заполнены нужные поля!");
-                            return;
-                        }
-                        //List<Song> d = GetButch(50 * i, 50, tmp);
-                        ScrobbleTracks(tbLogin.Text, tbPassword.Text, GetButch(50*i, 50, tmp));
-                    }
-                    else
-                    {
-                       // List<Song> d = GetButch(50 * i, 50, tmp);
-                        ScrobbleTracks(GetButch(50 * i, 50, tmp));
-                    }
+                    ScrobbleTracks(GetButch(50 * i, 50, tmp));
                     if ((i+1) != iterations)
                     Thread.Sleep(1500); // ставим ожидание, чтобы дать серверу время на обработку
                 }
