@@ -28,7 +28,15 @@ namespace Last.fm
         string mySecret = "aeaa72cd88242eb7f1437ed8b9937e16";
         string username = String.Empty;
 
-        string[] allowedExtension = { ".mp3", ".wav", ".flac", ".ogg" };
+        /// <summary>
+        /// Список расширений, с которыми файлы добавляются через перетаскивание
+        /// </summary>
+        string[] allowedExtension = { 
+                                        ".mp3", 
+                                        ".wav", 
+                                        ".flac", 
+                                        ".ogg" 
+                                    };
 
         #region Вспомогательные методы
         public bool Compare(int s1, int s2)
