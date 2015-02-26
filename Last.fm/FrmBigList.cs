@@ -19,10 +19,12 @@ namespace Last.fm
                 for (int i = 0; i < tbBig.Lines.Length; i++)
                 {
                     if (!String.IsNullOrEmpty(tbBig.Lines[i]))
+                    {
                         t.AddOneLine(tbBig.Lines[i].TrimEnd(' ')); // обрезаем пробелы в конце, а то с ними возникают ошибки
+                    }
                 }
 
-                t.lblSongCount.Text = t.lbList.Items.Count.ToString();
+                t.UpdateCountLabel();
 
             }
             catch (Exception e1)
@@ -30,10 +32,8 @@ namespace Last.fm
                 MessageBox.Show(e1.Message);
                 return;
             }
+
             MessageBox.Show("Треки добавлены", String.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-
-
         }
 
         private void btnCancel_Click(object sender, EventArgs e)

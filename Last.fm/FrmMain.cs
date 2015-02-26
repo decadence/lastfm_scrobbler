@@ -335,7 +335,7 @@ namespace Last.fm
             if (mClear.Checked) // отчищаем, если задано
             {
                 lbList.Items.Clear();
-                lblSongCount.Text = lbList.Items.Count.ToString();
+                UpdateCountLabel();
             }
 
             MessageBox.Show("Треки отправлены!");
@@ -401,15 +401,14 @@ namespace Last.fm
             if (tbOneLine.Text.Length > 4)
                 if (AddOneLine(tbOneLine.Text))
                 {
-                    lblSongCount.Text = lbList.Items.Count.ToString();
-                    //tbOneLine.Text = String.Empty;
+                    UpdateCountLabel();
                 }
         }
 
         private void DeleteMS_Click(object sender, EventArgs e)
         {
             lbList.Items.RemoveAt(lbList.SelectedIndex);
-            lblSongCount.Text = lbList.Items.Count.ToString();
+            UpdateCountLabel();
         }
 
         private void ClearMS_Click(object sender, EventArgs e)
@@ -784,11 +783,12 @@ namespace Last.fm
                 {
                     AddFile(fI[i]);
                 }
-                lblSongCount.Text = lbList.Items.Count.ToString();
+                UpdateCountLabel();
             }
             else throw new Exception ("Директория не существует");
         }
 
+        
         public void AddFile(FileInfo path)
         {
             if (path.Exists)
@@ -846,6 +846,9 @@ namespace Last.fm
 
         }
 
+        /// <summary>
+        /// Обновление количества песен
+        /// </summary>
         public void UpdateCountLabel()
         {
             lblSongCount.Text = lbList.Items.Count.ToString();
@@ -889,7 +892,7 @@ namespace Last.fm
                     AddFolder(FileList[i]);
                 }
             }
-            lblSongCount.Text = lbList.Items.Count.ToString();
+            UpdateCountLabel();
 
 
         }
