@@ -131,8 +131,6 @@
     <Content Include="pictures\Last.fm.ico" />
     <Content Include="pictures\no.png" />
     <Content Include="pictures\ok.png" />
-    <None Include="Resources\1.png" />
-    <None Include="Resources\Image1.bmp" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

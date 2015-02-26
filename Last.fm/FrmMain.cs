@@ -865,15 +865,18 @@ namespace Last.fm
         {
             // Проверяем, подходят ли нам перетаскиваемые файлы
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
                 e.Effect = DragDropEffects.Copy; // Устанавливаем у курсора значок копирования
-            else
-                e.Effect = DragDropEffects.None; // Устанавливаем у курсора значок запрета
+                return;            
+            }
+            
+            e.Effect = DragDropEffects.None; // Устанавливаем у курсора значок запрета
 
         }
 
         private void lbList_DragDrop(object sender, DragEventArgs e)
         {
-            string[] FileList = (string[])e.Data.GetData(DataFormats.FileDrop, false);
+            string[] FileList = (string[])e.Data.GetData(DataFormats.FileDrop);
 
             for (int i = 0; i < FileList.Length; i++)
             {
@@ -970,5 +973,4 @@ namespace Last.fm
     }
 }
 
-// TODO: Добавить пункт в меню "Возможные проблемы". Перечислить браузер по умолчанию, .NET Framework и др.
 
