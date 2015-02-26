@@ -77,14 +77,18 @@ namespace Last.fm
             return tmp;
         }
 
-        string MD5(string s) // MD5
+        /// <summary>
+        /// MD5 хеширование
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        string MD5(string s)
         {
             //переводим строку в байт-массим   
             byte[] bytes = Encoding.UTF8.GetBytes(s); // для ласта нужна ASCII (?)
 
             //создаем объект для получения средст шифрования   
-            MD5CryptoServiceProvider CSP =
-                new MD5CryptoServiceProvider();
+            MD5CryptoServiceProvider CSP = new MD5CryptoServiceProvider();
 
             //вычисляем хеш-представление в байтах   
             byte[] byteHash = CSP.ComputeHash(bytes);
@@ -93,7 +97,9 @@ namespace Last.fm
 
             //формируем одну цельную строку из массива   
             foreach (byte b in byteHash)
+            {
                 hash += string.Format("{0:x2}", b);
+            }
 
             return hash;
         }
@@ -103,11 +109,6 @@ namespace Last.fm
         {
             InitializeComponent();
             bf = new BinaryFormatter();
-
-            /*
-            Binding g = new Binding("Text", lbList.Items, "Count");
-            lblSongCount.DataBindings.Add(g);
-            */
 
             cbTimeType.SelectedIndex = 0;
 
@@ -469,6 +470,9 @@ namespace Last.fm
 
         }
 
+        /// <summary>
+        /// Обновление иконки доступа приложения к профилю
+        /// </summary>
         void UpdateAccessIcon()
         {
             if (String.IsNullOrEmpty(GetSessionKey()))

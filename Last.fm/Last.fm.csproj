@@ -74,6 +74,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApplicationSettings.cs" />
     <Compile Include="FrmBigList.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -130,6 +131,8 @@
     <Content Include="pictures\Last.fm.ico" />
     <Content Include="pictures\no.png" />
     <Content Include="pictures\ok.png" />
+    <None Include="Resources\1.png" />
+    <None Include="Resources\Image1.bmp" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -162,12 +165,6 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Settings\Settings.csproj">
-      <Project>{52FB1B9F-A479-4988-A79C-DF43A1D7269F}</Project>
-      <Name>Settings</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

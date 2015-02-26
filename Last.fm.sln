@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C# Express 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Last.fm", "Last.fm\Last.fm.csproj", "{4E096809-5CBC-4752-92A3-260BED7462B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Settings", "Settings\Settings.csproj", "{52FB1B9F-A479-4988-A79C-DF43A1D7269F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,10 +13,6 @@ Global
 		{4E096809-5CBC-4752-92A3-260BED7462B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E096809-5CBC-4752-92A3-260BED7462B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E096809-5CBC-4752-92A3-260BED7462B8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{52FB1B9F-A479-4988-A79C-DF43A1D7269F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{52FB1B9F-A479-4988-A79C-DF43A1D7269F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{52FB1B9F-A479-4988-A79C-DF43A1D7269F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{52FB1B9F-A479-4988-A79C-DF43A1D7269F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

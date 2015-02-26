@@ -439,6 +439,8 @@
             // 
             // mAutoSave
             // 
+            this.mAutoSave.Checked = true;
+            this.mAutoSave.CheckState = System.Windows.Forms.CheckState.Checked;
             this.mAutoSave.Name = "mAutoSave";
             this.mAutoSave.Size = new System.Drawing.Size(349, 22);
             this.mAutoSave.Text = "Автосохранение настроек при выходе";
