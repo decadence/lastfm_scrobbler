@@ -114,11 +114,18 @@ namespace Last.fm
 
         }
 
+        /// <summary>
+        /// Получение ключа сессии
+        /// </summary>
+        /// <returns></returns>
         string GetSessionKey()
         {
             if (sessionKey == "empty")
+            {
                 return null;
-            else return sessionKey;
+            }
+            
+            return sessionKey;
         }
 
         void ScrobbleTracks(List<Song> T, DateTime start)
@@ -129,7 +136,7 @@ namespace Last.fm
 
 
             string sessK = GetSessionKey();
-            //
+
             if (String.IsNullOrEmpty(sessK))
             {
                 DialogResult f = MessageBox.Show("Вы должны предоставить приложению доступ к своему профилю. Сделать это сейчас?", "Ошибка", MessageBoxButtons.YesNo);
@@ -139,7 +146,7 @@ namespace Last.fm
                 }
                 else return;
             }
-            //
+
             sessK = GetSessionKey();
 
             // установка сеанса работы с сервером
